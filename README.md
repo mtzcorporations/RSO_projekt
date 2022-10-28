@@ -1,0 +1,3 @@
+RSO projektna naloga Aplikacija za dostavo
+
+Aplikacija za dostavo Cilj aplikacije za dostavo je izračunati optimalno dostavno pot za nabor naročil v določenem času (npr. 60min) na podlagi različnih kriterijev, med drugim prometa (npr. preko Google Maps), lokacije naročnika, marže, lokacije ponudnika oz. dobavitelja, prevoznega sredstva dostavljavca (npr. kolo, avtomobil ali hoja), ocen naročnikov za dostavljavce ter ocen dostavljavcev za redne naročnike.
