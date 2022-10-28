@@ -1,0 +1,29 @@
+services:
+
+  postsmysql:
+    image: mysql:8.0.31
+    container_name: posts_db_mysql
+    ports:
+      - "3306:3306"
+    environment:
+#        MYSQL_ROOT_HOST: localhost
+#        MYSQL_ROOT_USER: root
+         MYSQL_DATABASE: test
+#        MYSQL_ROOT_PASSWORD: root
+         MYSQL_USER: tester
+         MYSQL_PASSWORD: secret
+         MYSQL_RANDOM_ROOT_PASSWORD: secret
+    volumes:
+      - database_mysql:/var/lib/mysql
+
+  posts:
+    container_name: posts_container
+    build: posts/.
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postsmysql
+
+volumes:
+  database_mysql:
+
