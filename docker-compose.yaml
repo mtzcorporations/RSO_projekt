@@ -8,11 +8,11 @@ services:
     environment:
 #        MYSQL_ROOT_HOST: localhost
 #        MYSQL_ROOT_USER: root
-         MYSQL_DATABASE: test
+         MYSQL_DATABASE: ${DB_NAME_DOCKER}
 #        MYSQL_ROOT_PASSWORD: root
-         MYSQL_USER: tester
-         MYSQL_PASSWORD: secret
-         MYSQL_RANDOM_ROOT_PASSWORD: secret
+         MYSQL_USER: ${DB_USER_DOCKER}
+         MYSQL_PASSWORD: ${DB_PASSWORD_DOCKER}
+         MYSQL_RANDOM_ROOT_PASSWORD: ${DB_PASSWORD_DOCKER}
     volumes:
       - database_mysql:/var/lib/mysql
 
