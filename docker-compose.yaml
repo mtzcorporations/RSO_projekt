@@ -18,7 +18,7 @@ services:
 
   posts:
     container_name: posts_container
-    build: posts/.
+    build: .
     ports:
       - "8000:8000"
     depends_on:
