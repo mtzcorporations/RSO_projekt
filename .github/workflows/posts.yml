@@ -1,4 +1,4 @@
-name: ci
+name: build_push_posts
 
 on:
   push:
@@ -32,4 +32,4 @@ jobs:
           context: ./posts
           file: ./posts/Dockerfile
           push: true
-          tags: rkogolang/repo:latest
+          tags: rkogolang/repo:posts_img
