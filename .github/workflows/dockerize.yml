@@ -4,11 +4,15 @@ on:
   push:
     branches:
       - 'main'
+      - 'fix_docker_2'
 
 jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
+      -
+        name: Check out code
+        uses: actions/checkout@v2
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v2
