@@ -25,5 +25,7 @@ jobs:
         name: Build and push
         uses: docker/build-push-action@v3
         with:
+          context: ./posts
+          file: ./posts/Dockerfile
           push: true
           tags: rkogolang/repo:latest

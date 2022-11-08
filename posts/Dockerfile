@@ -4,9 +4,9 @@ FROM golang:1.16-alpine
 
 WORKDIR /posts
 # Getting go files into image
-COPY posts/go.mod .
-COPY posts/go.sum .
-COPY posts/main.go .
+COPY go.mod .
+COPY go.sum .
+COPY main.go .
 # Installing dependencies
 RUN go mod download
 # Compiling
