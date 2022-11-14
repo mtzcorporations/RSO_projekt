@@ -4,7 +4,8 @@ on:
   push:
     branches:
       - 'main'
-      - 'fix_docker_2'
+      - 'dev'
+      - 'kubernetes'
 
 jobs:
   docker:
