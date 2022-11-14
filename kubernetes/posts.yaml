@@ -24,11 +24,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: webapp-service
+  name: posts-service
 spec:
   type: NodePort
   selector:
-    app: webapp
+    app: posts
   ports:
     - protocol: TCP
       port: 8000
