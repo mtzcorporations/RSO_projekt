@@ -3,15 +3,27 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 )
 
+func fileReader() string {
+	content, err := ioutil.ReadFile("C:\\Work\\GO\\RSO_projekt\\GoogleMapsApi\\KEYS.TXT")
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return string(content)
+}
 func main() {
+	APIKEY := fileReader()
+	fmt.Println(APIKEY)
 	origin := "Ptuj"
-	destination := "Ljubljana|Maribor|portorož  "
-	APIKEY := "AIzaSyDc_d1tvLqZhDC3sBhgtBh5DxMVJGMajps"
+	destination := "Ljubljana|Maribor|portorož"
 	url := "https://maps.googleapis.com/maps/api/distancematrix/json?origins=" + origin +
 		"&destinations=" + destination + "&units=metrics&key=" + APIKEY + "&avoidHighways=True"
+	//url := "https://maps.googleapis.com/maps/api/distancematrix/json?origins=Washington,%20DC&destinations=New%20York%20City,%20NY&units=imperial&key=AIzaSyAUfpksBJZuR-Oule_1Ah6fpW80_qwQasc"
 	method := "GET"
 
 	client := &http.Client{}
@@ -32,7 +44,6 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 		return
-
 	}
 	fmt.Println(string(body))
 }
