@@ -23,7 +23,7 @@ func main() {
 	destination := "Ljubljana|Maribor|portorož"
 	url := "https://maps.googleapis.com/maps/api/distancematrix/json?origins=" + origin +
 		"&destinations=" + destination + "&units=metrics&key=" + APIKEY + "&avoidHighways=True"
-	//url := "https://maps.googleapis.com/maps/api/distancematrix/json?origins=Washington,%20DC&destinations=New%20York%20City,%20NY&units=imperial&key=AIzaSyAUfpksBJZuR-Oule_1Ah6fpW80_qwQasc"
+
 	method := "GET"
 
 	client := &http.Client{}
