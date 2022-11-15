@@ -71,7 +71,7 @@ func main() {
 	*/
 
 	app.Get("/api/test", func(c *fiber.Ctx) error {
-		return c.Send([]byte("testing API"))
+		return c.Send([]byte("testing API 123"))
 	})
 
 	app.Listen(":8000")
