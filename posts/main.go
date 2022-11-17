@@ -3,8 +3,8 @@ package main
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	log "github.com/sirupsen/logrus"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"time"
 )
@@ -73,28 +73,27 @@ func main() {
 		})
 	*/
 
-	// Do api request to another container
-	url := "http://localhost:8001/api/test"
-	spaceClient := http.Client{Timeout: time.Second * 20} // Timeout after 2 seconds
-	req, err := http.NewRequest(http.MethodGet, url, nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-	req.Header.Set("User-Agent", "test")
-	res, getErr := spaceClient.Do(req)
-	if getErr != nil {
-		log.Fatal(getErr)
-	}
-	if res.Body != nil {
-		defer res.Body.Close()
-	}
+	app.Get("/", func(c *fiber.Ctx) error {
+		// Do api request to another container
+		url := "http://localhost:8001/"
+		spaceClient := http.Client{Timeout: time.Second * 20} // Timeout after 2 seconds
+		req, err := http.NewRequest(http.MethodGet, url, nil)
+		if err != nil {
+			log.Fatal(err)
+		}
+		req.Header.Set("User-Agent", "test")
+		res, getErr := spaceClient.Do(req)
+		if getErr != nil {
+			log.Fatal(getErr)
+		}
+		if res.Body != nil {
+			defer res.Body.Close()
+		}
 
-	body, readErr := ioutil.ReadAll(res.Body)
-	if readErr != nil {
-		log.Fatal(readErr)
-	}
-
-	app.Get("/api/test", func(c *fiber.Ctx) error {
+		body, readErr := ioutil.ReadAll(res.Body)
+		if readErr != nil {
+			log.Fatal(readErr)
+		}
 		return c.SendString(string(body))
 	})
 

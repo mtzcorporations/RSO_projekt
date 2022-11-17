@@ -12,7 +12,7 @@ RUN go mod download
 # Compiling
 RUN go build -o /weatherAPI-compiled
 
-EXPOSE 8000
+EXPOSE 8001
 
 #CMD [ "go", "run", "main.go" ]
 CMD ["/weatherAPI-compiled"]

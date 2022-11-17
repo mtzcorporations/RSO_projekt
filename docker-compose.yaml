@@ -29,8 +29,9 @@ services:
     build: posts/.
     ports:
       - "8000:8000"
-    # depends_on:
-    #   - weather_api
+    depends_on:
+      - weather_api
+
 
 
 #volumes:

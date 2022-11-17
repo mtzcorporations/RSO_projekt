@@ -60,7 +60,7 @@ func main() {
 
 	app.Use(cors.New())
 
-	app.Get("/api/test", func(c *fiber.Ctx) error {
+	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString(string(weather_lj_json))
 	})
 
