@@ -7,6 +7,7 @@ WORKDIR /posts
 COPY go.mod .
 COPY go.sum .
 COPY main.go .
+
 # Installing dependencies
 RUN go mod download
 # Compiling

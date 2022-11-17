@@ -8,7 +8,6 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"net/http"
-	"os"
 	"time"
 )
 
@@ -28,7 +27,7 @@ type Comment struct {
 func main() {
 	//TODO use .env variable
 	var dsn string
-	if os.Getenv("ISDOCKER") == "1" {
+	if true {
 		time.Sleep(5 * time.Second)
 		dsn = "tester:secret@tcp(postsmysql:3306)/test"
 	} else {
