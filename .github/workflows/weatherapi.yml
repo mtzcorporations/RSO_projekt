@@ -1,11 +1,11 @@
-name: build_push_weatherAPI
+name: build_push_weatherapi
 
 on:
   push:
     branches:
       - 'main'
       - 'dev'
-      - 'weatherAPI'
+      - 'weatherapi'
 
 jobs:
   docker:
@@ -30,7 +30,7 @@ jobs:
         name: Build and push
         uses: docker/build-push-action@v3
         with:
-          context: ./weatherAPI
-          file: ./weatherAPI/Dockerfile
+          context: ./weatherapi
+          file: ./weatherapi/Dockerfile
           push: true
-          tags: rkogolang/repo:weatherAPI_img
+          tags: rkogolang/repo:weatherapi_img

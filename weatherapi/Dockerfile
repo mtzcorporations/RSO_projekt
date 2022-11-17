@@ -10,9 +10,9 @@ COPY main.go .
 # Installing dependencies
 RUN go mod download
 # Compiling
-RUN go build -o /weatherAPI-compiled
+RUN go build -o /weatherapi-compiled
 
 EXPOSE 8001
 
 #CMD [ "go", "run", "main.go" ]
-CMD ["/weatherAPI-compiled"]
+CMD ["/weatherapi-compiled"]

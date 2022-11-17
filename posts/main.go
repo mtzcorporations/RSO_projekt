@@ -53,10 +53,10 @@ func main() {
 					return err
 				}
 
-				var weatherAPI []Comment
-				json.NewDecoder(response.Body).Decode(&weatherAPI)
+				var weatherapi []Comment
+				json.NewDecoder(response.Body).Decode(&weatherapi)
 
-				posts[i].Comments = weatherAPI
+				posts[i].Comments = weatherapi
 			}
 
 			return c.JSON(posts)
