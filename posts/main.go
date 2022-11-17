@@ -45,7 +45,7 @@ func main() {
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		// Do api request to another container
-		url := "http://localhost:8001/"
+		url := "http://weatherapi:8001/"
 		spaceClient := http.Client{Timeout: time.Second * 20} // Timeout after 2 seconds
 		req, err := http.NewRequest(http.MethodGet, url, nil)
 		if err != nil {

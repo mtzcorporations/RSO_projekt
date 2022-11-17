@@ -5,13 +5,10 @@ services:
     ports:
       - "3306:3306"
     environment:
-        MYSQL_ROOT_HOST: localhost
-        MYSQL_ROOT_USER: root
-        MYSQL_DATABASE: ${DB_NAME_DOCKER}
-        MYSQL_ROOT_PASSWORD: root
-        MYSQL_USER: ${DB_USER_DOCKER}
-        MYSQL_PASSWORD: ${DB_PASSWORD_DOCKER}
-        MYSQL_RANDOM_ROOT_PASSWORD: ${DB_PASSWORD_DOCKER}
+      MYSQL_DATABASE: ${DB_NAME_DOCKER}
+      MYSQL_USER: ${DB_USER_DOCKER}
+      MYSQL_PASSWORD: ${DB_PASSWORD_DOCKER}
+      MYSQL_RANDOM_ROOT_PASSWORD: ${DB_PASSWORD_DOCKER}
     volumes:
       - database_mysql:/var/lib/mysql
 
