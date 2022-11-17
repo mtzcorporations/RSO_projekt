@@ -3,8 +3,6 @@ package main
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -26,18 +24,18 @@ type Comment struct {
 func main() {
 	//TODO use .env variable
 
-	var dsn string
-	if true {
-		time.Sleep(5 * time.Second)
-		dsn = "tester:secret@tcp(postsmysql:3306)/test"
-	} else {
-		dsn = "root@tcp(127.0.0.1:3306)/posts_ms"
-	}
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
-	if err != nil {
-		panic("failed to connect database")
-	}
-	db.AutoMigrate(Post{})
+	// var dsn string
+	// if true {
+	// 	time.Sleep(5 * time.Second)
+	// 	dsn = "tester:secret@tcp(postsmysql:3306)/test"
+	// } else {
+	// 	dsn = "root@tcp(127.0.0.1:3306)/posts_ms"
+	// }
+	// db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	// if err != nil {
+	// 	panic("failed to connect database")
+	// }
+	// db.AutoMigrate(Post{})
 
 	app := fiber.New()
 
