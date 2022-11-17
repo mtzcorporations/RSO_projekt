@@ -43,37 +43,6 @@ func main() {
 
 	app.Use(cors.New())
 
-	/*
-		app.Get("/api/posts", func(c *fiber.Ctx) error {
-			var posts []Post
-			db.Find(&posts)
-
-			for i, post := range posts {
-				response, err := http.Get(fmt.Sprintf("http://localhost:8001/api/posts/%d/comments", post.Id))
-				if err != nil {
-					return err
-				}
-
-				var weatherapi []Comment
-				json.NewDecoder(response.Body).Decode(&weatherapi)
-
-				posts[i].Comments = weatherapi
-			}
-
-			return c.JSON(posts)
-		})
-
-		app.Post("/api/posts", func(c *fiber.Ctx) error {
-			var post Post
-			if err := c.BodyParser(&post); err != nil {
-				return err
-			}
-
-			db.Create(&post)
-			return c.JSON(post)
-		})
-	*/
-
 	app.Get("/", func(c *fiber.Ctx) error {
 		// Do api request to another container
 		url := "http://localhost:8001/"
