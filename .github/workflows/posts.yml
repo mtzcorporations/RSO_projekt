@@ -1,14 +1,19 @@
-name: ci
+name: build_push_posts
 
 on:
   push:
     branches:
       - 'main'
+      - 'dev'
+      - 'kubernetes'
 
 jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
+      -
+        name: Check out code
+        uses: actions/checkout@v2
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -28,4 +33,4 @@ jobs:
           context: ./posts
           file: ./posts/Dockerfile
           push: true
-          tags: rkogolang/repo:latest
+          tags: rkogolang/repo:posts_img
