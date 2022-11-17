@@ -2,7 +2,8 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -43,12 +44,26 @@ func main() {
 	if readErr != nil {
 		log.Fatal(readErr)
 	}
-	vreme := weather{}
-	jsonErr := json.Unmarshal([]byte(body), &vreme)
+	weather_lj := weather{}
+	jsonErr := json.Unmarshal([]byte(body), &weather_lj) // json to our "weather" struct
 	if jsonErr != nil {
 		log.Fatal(jsonErr)
 	}
+	//fmt.Println(weather_lj.Name, weather_lj.Main, weather_lj.Oblaki[0])
+	weather_lj_json, jsonErr := json.Marshal(weather_lj) // back to json
+	if err != nil {
+		log.Fatal(jsonErr)
+	}
 
-	fmt.Println(vreme.Name, vreme.Main, vreme.Oblaki[0])
+	// Expose API
+	app := fiber.New()
+
+	app.Use(cors.New())
+
+	app.Get("/api/test", func(c *fiber.Ctx) error {
+		return c.SendString(string(weather_lj_json))
+	})
+
+	app.Listen(":8001")
 
 }

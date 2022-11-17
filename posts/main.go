@@ -3,13 +3,16 @@ package main
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"time"
 )
 
 type Post struct {
-	Id       uint      `json:"id"`
-	Title    string    `json:"title"`
-	Desc     string    `json:"desc"`
-	Comments []Comment `json:"comments" gorm:"-" default:"[]"`
+	Id    uint   `json:"id"`
+	Title string `json:"title"`
+	Desc  string `json:"desc"`
 }
 
 type Comment struct {
@@ -50,10 +53,10 @@ func main() {
 					return err
 				}
 
-				var comments []Comment
-				json.NewDecoder(response.Body).Decode(&comments)
+				var weatherAPI []Comment
+				json.NewDecoder(response.Body).Decode(&weatherAPI)
 
-				posts[i].Comments = comments
+				posts[i].Comments = weatherAPI
 			}
 
 			return c.JSON(posts)
@@ -70,8 +73,29 @@ func main() {
 		})
 	*/
 
+	// Do api request to another container
+	url := "http://localhost:8001/api/test"
+	spaceClient := http.Client{Timeout: time.Second * 20} // Timeout after 2 seconds
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	req.Header.Set("User-Agent", "test")
+	res, getErr := spaceClient.Do(req)
+	if getErr != nil {
+		log.Fatal(getErr)
+	}
+	if res.Body != nil {
+		defer res.Body.Close()
+	}
+
+	body, readErr := ioutil.ReadAll(res.Body)
+	if readErr != nil {
+		log.Fatal(readErr)
+	}
+
 	app.Get("/api/test", func(c *fiber.Ctx) error {
-		return c.Send([]byte("testing API 123"))
+		return c.SendString(string(body))
 	})
 
 	app.Listen(":8000")

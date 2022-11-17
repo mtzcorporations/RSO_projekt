@@ -18,13 +18,20 @@ services:
 #    volumes:
 #      - database_mysql:/var/lib/mysql
 
+  weather_api:
+    container_name: weatherAPI_container
+    build: weatherAPI/.
+    ports:
+      - "8001:8001"
+
   posts:
     container_name: posts_container
     build: posts/.
     ports:
       - "8000:8000"
     # depends_on:
-    #   - postsmysql
+    #   - weather_api
+
 
 #volumes:
 #  database_mysql:
