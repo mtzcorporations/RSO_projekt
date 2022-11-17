@@ -41,7 +41,7 @@ func main() {
 
 	app.Use(cors.New())
 
-	app.Get("/", func(c *fiber.Ctx) error {
+	app.Get("/api/test", func(c *fiber.Ctx) error {
 		// Do api request to another container
 		url := "http://weatherapi:8001/"
 		spaceClient := http.Client{Timeout: time.Second * 20} // Timeout after 2 seconds
@@ -63,6 +63,10 @@ func main() {
 			log.Fatal(readErr)
 		}
 		return c.SendString(string(body))
+	})
+
+	app.Get("/", func(c *fiber.Ctx) error {
+		return c.Send([]byte("Posts container working"))
 	})
 
 	app.Listen(":8000")
