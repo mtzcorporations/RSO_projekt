@@ -1,24 +1,24 @@
 package main
 
 import (
+	"encoding/json"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 )
 
-type Post struct {
-	Id    uint   `json:"id"`
-	Title string `json:"title"`
-	Desc  string `json:"desc"`
-}
-
-type Comment struct {
-	Id     uint
-	PostId string
-	Text   string
+type weather struct {
+	Name string `json:"name"`
+	Main struct {
+		Kelvin float64 `json:"temp"`
+	} `json:"main"`
+	Oblaki []struct {
+		Sonce string `json:"main"`
+	} `json:"weather"`
 }
 
 func main() {
@@ -43,7 +43,8 @@ func main() {
 
 	app.Get("/api/test", func(c *fiber.Ctx) error {
 		// Do api request to another container
-		url := "http://10.0.41.147:8001/"
+		// url := "http://weatherapi:8001/api/test"
+		url := "http://10.0.41.147:8001/api/test"
 		spaceClient := http.Client{Timeout: time.Second * 20} // Timeout after 2 seconds
 		req, err := http.NewRequest(http.MethodGet, url, nil)
 		if err != nil {
@@ -62,7 +63,16 @@ func main() {
 		if readErr != nil {
 			log.Fatal(readErr)
 		}
-		return c.SendString(string(body))
+
+		weather_lj := weather{}
+		jsonErr := json.Unmarshal([]byte(body), &weather_lj) // json to our "weather" struct
+		if jsonErr != nil {
+			log.Fatal(jsonErr)
+		}
+
+		degrees := strconv.FormatFloat(weather_lj.Main.Kelvin, 'E', -1, 64)
+		weather_str := "V " + weather_lj.Name + " je " + degrees + " stopinj"
+		return c.SendString(weather_str)
 	})
 
 	app.Get("/", func(c *fiber.Ctx) error {
