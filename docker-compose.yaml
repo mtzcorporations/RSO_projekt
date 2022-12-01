@@ -1,29 +1,30 @@
 services:
+  # postsmysql:
+  #   image: mysql:8.0.31
+  #   container_name: posts_db_mysql
+  #   ports:
+  #     - "3306:3306"
+  #   environment:
+  #     MYSQL_DATABASE: ${DB_NAME_DOCKER}
+  #     MYSQL_USER: ${DB_USER_DOCKER}
+  #     MYSQL_PASSWORD: ${DB_PASSWORD_DOCKER}
+  #     MYSQL_RANDOM_ROOT_PASSWORD: ${DB_PASSWORD_DOCKER}
+  #   volumes:
+  #     - database_mysql:/var/lib/mysql
 
-  postsmysql:
-    image: mysql:8.0.31
-    container_name: posts_db_mysql
+  weatherapi:
+    container_name: weatherapi_container
+    build: weatherapi/.
     ports:
-      - "3306:3306"
-    environment:
-#        MYSQL_ROOT_HOST: localhost
-#        MYSQL_ROOT_USER: root
-         MYSQL_DATABASE: ${DB_NAME_DOCKER}
-#        MYSQL_ROOT_PASSWORD: root
-         MYSQL_USER: ${DB_USER_DOCKER}
-         MYSQL_PASSWORD: ${DB_PASSWORD_DOCKER}
-         MYSQL_RANDOM_ROOT_PASSWORD: ${DB_PASSWORD_DOCKER}
-    volumes:
-      - database_mysql:/var/lib/mysql
+      - "8001:8001"
 
   posts:
     container_name: posts_container
-    build: .
+    build: posts/.
     ports:
       - "8000:8000"
     depends_on:
-      - postsmysql
+      - weatherapi
 
-volumes:
-  database_mysql:
-
+# volumes:
+#   database_mysql:
