@@ -107,7 +107,7 @@ func register(c *fiber.Ctx) error {
 func main() {
 	//TODO use .env variable
 	var dsn string
-	if false {
+	if true {
 		time.Sleep(5 * time.Second)
 		dsn = "tester:secret@tcp(postsmysql:3306)/test"
 	} else {
