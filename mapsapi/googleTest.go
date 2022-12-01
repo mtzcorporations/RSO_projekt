@@ -8,7 +8,7 @@ import (
 )
 
 func fileReader() string {
-	content, err := ioutil.ReadFile("C:\\Work\\GO\\RSO_projekt\\GoogleMapsApi\\KEYS.TXT")
+	content, err := ioutil.ReadFile("C:\\Work\\GO\\RSO_projekt\\mapsapi\\KEYS.TXT")
 
 	if err != nil {
 		log.Fatal(err)

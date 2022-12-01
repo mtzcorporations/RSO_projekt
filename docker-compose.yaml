@@ -17,7 +17,11 @@ services:
     build: weatherapi/.
     ports:
       - "8001:8001"
-
+  mapsapi:
+    container_name: mapsapi_container
+    build: mapsapi/.
+    ports:
+      - "8002:8002"
   posts:
     container_name: posts_container
     build: posts/.
