@@ -6,7 +6,7 @@ import (
 	jwtware "github.com/gofiber/jwt/v3"
 	"github.com/golang-jwt/jwt/v4"
 	"golang.org/x/crypto/bcrypt"
-	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"time"
 )
@@ -107,13 +107,8 @@ func register(c *fiber.Ctx) error {
 func main() {
 	//TODO use .env variable
 	var dsn string
-	if true {
-		time.Sleep(5 * time.Second)
-		dsn = "tester:secret@tcp(postsmysql:3306)/test"
-	} else {
-		dsn = "root@tcp(127.0.0.1:3306)/posts_ms"
-	}
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	dsn = "postgres://zlqwvdmx:x0tl7AVnX4zi0rsqeKcf8R2dhjvqOpib@ella.db.elephantsql.com/zlqwvdmx"
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
 	}
