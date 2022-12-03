@@ -13,7 +13,7 @@ RUN go mod download
 # Compiling
 RUN go build -o /authentication-compiled
 
-EXPOSE 8002
+EXPOSE 8003
 
 #CMD [ "go", "run", "main.go" ]
 CMD ["/authentication-compiled"]
