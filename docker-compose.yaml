@@ -1,17 +1,4 @@
 services:
-  # postsmysql:
-  #   image: mysql:8.0.31
-  #   container_name: posts_db_mysql
-  #   ports:
-  #     - "3306:3306"
-  #   environment:
-  #     MYSQL_DATABASE: ${DB_NAME_DOCKER}
-  #     MYSQL_USER: ${DB_USER_DOCKER}
-  #     MYSQL_PASSWORD: ${DB_PASSWORD_DOCKER}
-  #     MYSQL_RANDOM_ROOT_PASSWORD: ${DB_PASSWORD_DOCKER}
-  #   volumes:
-  #     - database_mysql:/var/lib/mysql
-
    weatherapi:
     container_name: weatherapi_container
     build: weatherapi/.
@@ -34,7 +21,7 @@ services:
      container_name: authentication_container
      build: authentication/.
      ports:
-       - "8002:8002"
+       - "8003:8003"
      depends_on:
        - postsmysql
 
