@@ -76,7 +76,7 @@ func main() {
 	app.Use(cors.New())
 
 	app.Get("/api/maps", func(c *fiber.Ctx) error {
-		APIKEY := os.Getenv("map-secret")
+		APIKEY := os.Getenv("API_KEY")
 		//fmt.Println(APIKEY)
 		origin := "Ptuj"
 		destination := "Maribor"
