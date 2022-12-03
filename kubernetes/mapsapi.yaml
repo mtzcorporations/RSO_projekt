@@ -19,6 +19,12 @@ spec:
           image: rkogolang/repo:mapsapi_img
           ports:
             - containerPort: 8002
+          env:
+          - name: API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: map-secret
+                key: apikey
 
 ---
 apiVersion: v1

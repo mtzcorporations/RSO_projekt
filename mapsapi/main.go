@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 )
 
@@ -75,7 +76,10 @@ func main() {
 	app.Use(cors.New())
 
 	app.Get("/api/maps", func(c *fiber.Ctx) error {
-		APIKEY := "" //fileReader2()
+		APIKEY, got := os.LookupEnv("map-secret")
+		if got {
+			fmt.Println("Failed to get API KEY env variable")
+		}
 		//fmt.Println(APIKEY)
 		origin := "Ptuj"
 		destination := "Maribor"
@@ -112,9 +116,10 @@ func main() {
 		Koordinata_Lat := mapa.Routes[0].Legs[0].StartLocation.Lat
 		Koordinata_Lng := mapa.Routes[0].Legs[0].StartLocation.Lng
 		//print Lat and Lng
-		fmt.Println(Koordinata_Lat)
-		fmt.Println(Koordinata_Lng)
-		return c.Send([]byte(strconv.FormatFloat(Koordinata_Lng, 'E', -1, 64)))
+		//fmt.Println(Koordinata_Lat)
+		//fmt.Println(Koordinata_Lng)
+		vrni := "zacetek:" + origin + "Lat " + strconv.FormatFloat(Koordinata_Lng, 'E', -1, 64) + "Lng: " + strconv.FormatFloat(Koordinata_Lat, 'E', -1, 64) + " destinacija:" + destination
+		return c.Send([]byte(vrni))
 	})
 	app.Get("/api/mapsDummy", func(c *fiber.Ctx) error {
 		return c.SendString("koordinata je: " + string("69"))
