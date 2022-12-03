@@ -1,8 +1,8 @@
 # syntax=docker/dockerfile:1
 
-FROM golang:1.16-alpine
+FROM golang:1.17-alpine
 
-WORKDIR /posts
+WORKDIR /authentication
 # Getting go files into image
 COPY go.mod .
 COPY go.sum .
@@ -11,9 +11,9 @@ COPY main.go .
 # Installing dependencies
 RUN go mod download
 # Compiling
-RUN go build -o /posts-compiled
+RUN go build -o /authentication-compiled
 
-EXPOSE 8000
+EXPOSE 8003
 
 #CMD [ "go", "run", "main.go" ]
-CMD ["/posts-compiled"]
+CMD ["/authentication-compiled"]
