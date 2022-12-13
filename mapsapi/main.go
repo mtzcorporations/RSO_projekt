@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	"strconv"
 )
 
@@ -76,7 +75,7 @@ func main() {
 	app.Use(cors.New())
 
 	app.Get("/api/maps", func(c *fiber.Ctx) error {
-		APIKEY := os.Getenv("API_KEY")
+		APIKEY := "AIzaSyAatMhbCcoDEvvfUp89QqDWD96RkxmVydA"
 		//fmt.Println(APIKEY)
 		origin := "Ptuj"
 		destination := "Maribor"
