@@ -77,7 +77,6 @@ func main() {
 
 	app.Get("/api/maps", func(c *fiber.Ctx) error {
 		APIKEY := os.Getenv("API_KEY")
-		//fmt.Println(APIKEY)
 		origin := "Ptuj"
 		destination := "Maribor"
 		params := "&units=metrics&avoidTolls=True&mode=walking"
@@ -110,6 +109,8 @@ func main() {
 			fmt.Println(err)
 			fmt.Println("Can not unmarshal JSON")
 		}
+		fmt.Println(string(body))
+		fmt.Println("\n\n\n")
 		Koordinata_Lat := mapa.Routes[0].Legs[0].StartLocation.Lat
 		Koordinata_Lng := mapa.Routes[0].Legs[0].StartLocation.Lng
 		//print Lat and Lng
