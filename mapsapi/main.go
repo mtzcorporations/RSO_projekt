@@ -9,7 +9,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strconv"
 )
 
 type Maps struct {
@@ -26,25 +25,25 @@ type Maps struct {
 				Lng float64 `json:"lng"`
 			} `json:"start_location"`
 			Steps []struct {
-				Distance struct {
-					Text string `json:"text"`
-				} `json:"distance"`
+				EndLocation struct {
+					Lat float64 `json:"lat"`
+					Lng float64 `json:"lng"`
+				} `json:"end_location"`
 			} `json:"steps"`
 		} `json:"legs"`
 	} `json:"routes"`
 	Status string `json:"status"`
 }
 
-type Maps2 struct {
-	Routes []struct {
-		Bounds struct {
-			Northeast struct {
-				Lat json.Number
-				Lng json.Number
-			} `json:"northeast" `
-		} `json:"bounds"`
-	} `json:"routes"`
-	Status string `json:"status"`
+type Mapsout struct {
+	Zacetek    string `json:"zacetek"`
+	Konec      string `json:"cilj"`
+	Trajanje   string `json:"trajanje"`
+	Razdalja   string `json:"razdalja"`
+	Koordinate []struct {
+		Lat float64 `json:"lat"`
+		Lng float64 `json:"lng"`
+	}
 }
 
 func fileReader2() string {
@@ -69,25 +68,60 @@ func tipiPoti(pot string) string {
 	}
 	return "driving"
 }
+func getApiDat() {
+	APIKEY := "AIzaSyA9xam9b1WPI-PvyBCiyx2hkwhJTxdNPGo" //os.Getenv("API_KEY")
+	//fmt.Println(APIKEY)
+	origin := "Ptuj"
+	destination := "Maribor"
+	params := "&units=metrics&avoidTolls=True&mode=walking"
+	url := "https://maps.googleapis.com/maps/api/directions/json?origin=" + origin + "&destination=" + destination + params + "&key=" + APIKEY
+
+	method := "GET"
+	client := &http.Client{}
+	req, err := http.NewRequest(method, url, nil)
+
+	if err != nil {
+		fmt.Println(err)
+
+	}
+	res, err := client.Do(req)
+	if err != nil {
+		fmt.Println(err)
+
+	}
+	defer res.Body.Close()
+
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		fmt.Println(err)
+
+	}
+
+	//desifriranje jsona
+	var mapa Maps
+	if err := json.Unmarshal(body, &mapa); err != nil { // Parse []byte to go struct pointer
+		fmt.Println(err)
+		fmt.Println("Can not unmarshal JSON")
+	}
+}
 
 func main() {
+	getApiDat()
 	app := fiber.New()
 
 	app.Use(cors.New())
 
 	app.Get("/api/maps", func(c *fiber.Ctx) error {
 		APIKEY := os.Getenv("API_KEY")
-		//fmt.Println(APIKEY)
 		origin := "Ptuj"
 		destination := "Maribor"
-		params := "&units=metrics&avoidTolls=True&mode=walking"
+		params := "&units=metrics&avoidTolls=True&mode=driving"
 		url := "https://maps.googleapis.com/maps/api/directions/json?origin=" + origin + "&destination=" + destination + params + "&key=" + APIKEY
-
 		method := "GET"
 		client := &http.Client{}
 		req, err := http.NewRequest(method, url, nil)
-
 		if err != nil {
+			fmt.Println("empty")
 			fmt.Println(err)
 
 		}
@@ -106,17 +140,33 @@ func main() {
 
 		//desifriranje jsona
 		var mapa Maps
+		var output Mapsout
 		if err := json.Unmarshal(body, &mapa); err != nil { // Parse []byte to go struct pointer
 			fmt.Println(err)
 			fmt.Println("Can not unmarshal JSON")
 		}
-		Koordinata_Lat := mapa.Routes[0].Legs[0].StartLocation.Lat
-		Koordinata_Lng := mapa.Routes[0].Legs[0].StartLocation.Lng
-		//print Lat and Lng
-		//fmt.Println(Koordinata_Lat)
-		//fmt.Println(Koordinata_Lng)
-		vrni := "zacetek:" + origin + "Lat " + strconv.FormatFloat(Koordinata_Lng, 'E', -1, 64) + "Lng: " + strconv.FormatFloat(Koordinata_Lat, 'E', -1, 64) + " destinacija:" + destination
-		return c.Send([]byte(vrni))
+
+		output.Razdalja = mapa.Routes[0].Legs[0].Distance.Text
+		output.Trajanje = mapa.Routes[0].Legs[0].Duration.Text
+		output.Zacetek = origin
+		output.Konec = destination
+		output.Koordinate = append(output.Koordinate, struct {
+			Lat float64 `json:"lat"`
+			Lng float64 `json:"lng"`
+		}{mapa.Routes[0].Legs[0].StartLocation.Lat, mapa.Routes[0].Legs[0].StartLocation.Lng})
+
+		for i := 1; i < len(mapa.Routes[0].Legs[0].Steps); i++ {
+			output.Koordinate = append(output.Koordinate, struct {
+				Lat float64 `json:"lat"`
+				Lng float64 `json:"lng"`
+			}{mapa.Routes[0].Legs[0].Steps[i].EndLocation.Lat, mapa.Routes[0].Legs[0].Steps[i].EndLocation.Lng})
+		}
+		vrni, err := json.Marshal(output)
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		return c.Send(vrni)
 	})
 	app.Get("/api/mapsDummy", func(c *fiber.Ctx) error {
 		return c.SendString("koordinata je: " + string("69"))
