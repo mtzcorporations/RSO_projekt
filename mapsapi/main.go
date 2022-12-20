@@ -68,45 +68,8 @@ func tipiPoti(pot string) string {
 	}
 	return "driving"
 }
-func getApiDat() {
-	APIKEY := "AIzaSyA9xam9b1WPI-PvyBCiyx2hkwhJTxdNPGo" //os.Getenv("API_KEY")
-	//fmt.Println(APIKEY)
-	origin := "Ptuj"
-	destination := "Maribor"
-	params := "&units=metrics&avoidTolls=True&mode=walking"
-	url := "https://maps.googleapis.com/maps/api/directions/json?origin=" + origin + "&destination=" + destination + params + "&key=" + APIKEY
-
-	method := "GET"
-	client := &http.Client{}
-	req, err := http.NewRequest(method, url, nil)
-
-	if err != nil {
-		fmt.Println(err)
-
-	}
-	res, err := client.Do(req)
-	if err != nil {
-		fmt.Println(err)
-
-	}
-	defer res.Body.Close()
-
-	body, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		fmt.Println(err)
-
-	}
-
-	//desifriranje jsona
-	var mapa Maps
-	if err := json.Unmarshal(body, &mapa); err != nil { // Parse []byte to go struct pointer
-		fmt.Println(err)
-		fmt.Println("Can not unmarshal JSON")
-	}
-}
-
 func main() {
-	getApiDat()
+	//getApiDat_testFunc()
 	app := fiber.New()
 
 	app.Use(cors.New())

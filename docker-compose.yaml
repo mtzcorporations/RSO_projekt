@@ -22,6 +22,11 @@ services:
      build: authentication/.
      ports:
        - "8003:8003"
+   gasapi:
+     container_name: gasapi_container
+     build: gasapi/.
+     ports:
+       - "8004:8004"
 
 
 volumes:
