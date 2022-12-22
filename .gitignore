@@ -1,4 +1,4 @@
 .idea
 .env
 KEYS.TXT
-kubernetes\map-secret.yaml
+kubernetes/map-secret.yaml
