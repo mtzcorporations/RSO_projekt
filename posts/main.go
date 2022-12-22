@@ -44,7 +44,7 @@ func main() {
 	app.Get("/api/test", func(c *fiber.Ctx) error {
 		// Do api request to another container
 		// url := "http://weatherapi:8001/api/test"
-		url := "http://10.0.41.147:8001/api/test"
+		url := "http://10.0.143.93:8001/api/test"
 		spaceClient := http.Client{Timeout: time.Second * 20} // Timeout after 2 seconds
 		req, err := http.NewRequest(http.MethodGet, url, nil)
 		if err != nil {
@@ -78,7 +78,7 @@ func main() {
 	app.Get("/api/maps", func(c *fiber.Ctx) error {
 		// Do api request to another container
 		//url := "http://mapsapi:8002/api/mapsDummy"
-		url := "http://10.0.182.147:8002/api/maps"
+		url := "http://10.0.196.151:8002/api/maps"
 		spaceClient := http.Client{Timeout: time.Second * 20} // Timeout after 2 seconds
 		req, err := http.NewRequest(http.MethodGet, url, nil)
 		if err != nil {
