@@ -27,7 +27,7 @@ func main() {
 
 	app.Use(cors.New())
 
-	app.Get("/api/test", func(c *fiber.Ctx) error {
+	app.Get("/test", func(c *fiber.Ctx) error {
 		url := "http://api.openweathermap.org/data/2.5/weather?lat=46.05&lon=14.50&units=metric&appid=ab8428d16bce2694fb18fbab32071873"
 		spaceClient := http.Client{
 			Timeout: time.Second * 2, // Timeout after 2 seconds

@@ -74,7 +74,7 @@ func main() {
 
 	app.Use(cors.New())
 
-	app.Get("/api/maps", func(c *fiber.Ctx) error {
+	app.Get("/test", func(c *fiber.Ctx) error {
 		APIKEY := os.Getenv("API_KEY")
 		origin := "Ptuj"
 		destination := "Maribor"
@@ -131,7 +131,7 @@ func main() {
 
 		return c.Send(vrni)
 	})
-	app.Get("/api/mapsDummy", func(c *fiber.Ctx) error {
+	app.Get("/mapsDummy", func(c *fiber.Ctx) error {
 		return c.SendString("koordinata je: " + string("69"))
 	})
 	app.Get("/", func(c *fiber.Ctx) error {
