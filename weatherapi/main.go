@@ -13,7 +13,8 @@ import (
 type weather struct {
 	Name string `json:"name"`
 	Main struct {
-		Kelvin float64 `json:"temp"`
+		Kelvin   float64 `json:"temp"`
+		Humidity float64 `json:"humidity"`
 	} `json:"main"`
 	Oblaki []struct {
 		Sonce string `json:"main"`
@@ -27,8 +28,10 @@ func main() {
 
 	app.Use(cors.New())
 
-	app.Get("/test", func(c *fiber.Ctx) error {
-		url := "http://api.openweathermap.org/data/2.5/weather?lat=46.05&lon=14.50&units=metric&appid=ab8428d16bce2694fb18fbab32071873"
+	app.Get("/weather", func(c *fiber.Ctx) error {
+		//url := "http://api.openweathermap.org/data/2.5/weather?lat=46.05&lon=14.50&units=metric&appid=ab8428d16bce2694fb18fbab32071873"
+		url := "https://api.openweathermap.org/data/2.5/weather?lat=46.05&lon=14.50&appid=ab8428d16bce2694fb18fbab32071873"
+
 		spaceClient := http.Client{
 			Timeout: time.Second * 2, // Timeout after 2 seconds
 		}
@@ -57,11 +60,12 @@ func main() {
 			log.Fatal(jsonErr)
 		}
 		//fmt.Println(weather_lj.Name, weather_lj.Main, weather_lj.Oblaki[0])
-		weather_lj_json, jsonErr := json.Marshal(weather_lj) // back to json
-		if err != nil {
-			log.Fatal(jsonErr)
+
+		if weather_lj.Main.Humidity > 50 {
+			return c.Send([]byte("Avto"))
+		} else {
+			return c.Send([]byte("Kolo"))
 		}
-		return c.SendString(string(weather_lj_json))
 	})
 
 	app.Get("/", func(c *fiber.Ctx) error {
