@@ -79,7 +79,7 @@ func main() {
 		APIKEY := os.Getenv("API_KEY")
 		origin := "Ptuj"
 
-		waypoints := "&waypoints=Celje|Ljubljana"
+		waypoints := "&waypoints=Celje|Ljubljana" // | je ločilo med waypointi
 		destination := "Maribor"
 		params := "&units=metrics&mode=driving"
 		url := "https://maps.googleapis.com/maps/api/directions/json?origin=" + origin + "&destination=" + destination + waypoints + params + "&key=" + APIKEY
