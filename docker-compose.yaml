@@ -28,6 +28,12 @@ services:
      ports:
        - "8004:8004"
 
+   metrics:
+     container_name: metrics_container
+     build: metrics/.
+     ports:
+       - "8005:8005"
+
 
 volumes:
  database_mysql:
