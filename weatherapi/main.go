@@ -19,9 +19,24 @@ type weather struct {
 		Sonce string `json:"main"`
 	} `json:"weather"`
 }
+type healthCheck struct {
+	// Name of the health check
+	Name string `json:"name"`
+	// Status of the health check
+	Status string `json:"status"`
+	// Error message of the health check
+	Error string `json:"error"`
+	// Timestamp of the health check
+	Timestamp string `json:"timestamp"`
+}
 
 func main() {
-
+	health := healthCheck{
+		Name:      "weatherapiContainer",
+		Status:    "OK",
+		Error:     "",
+		Timestamp: time.Now().Format(time.RFC3339),
+	}
 	// Expose API
 	app := fiber.New()
 
@@ -67,7 +82,15 @@ func main() {
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.Send([]byte("Weather api container working"))
 	})
-
+	app.Get("/healthT", func(c *fiber.Ctx) error {
+		// fill health check struct
+		health.Status = "OK"
+		healt_json, err := json.Marshal(health) // back to json
+		if err != nil {
+			panic(err)
+		}
+		return c.SendString(string(healt_json))
+	})
 	app.Listen(":8001")
 
 }
