@@ -39,6 +39,13 @@ spec:
             name: posts-service
             port:
               number: 8000
+      - path: /metrics(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: metricsapi-service
+            port:
+              number: 8005
       - path: /(.*)
         pathType: Prefix
         backend:
