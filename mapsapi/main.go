@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 )
 
 type Maps struct {
@@ -75,7 +74,8 @@ func main() {
 	app.Use(cors.New())
 
 	app.Get("/test", func(c *fiber.Ctx) error {
-		APIKEY := os.Getenv("API_KEY")
+		// APIKEY := os.Getenv("API_KEY")
+		APIKEY := "AIzaSyB8YSNqlWm6FMKuOfBnHL223E7m6Uate6Q"
 		origin := "Ptuj"
 		destination := "Maribor"
 		params := "&units=metrics&avoidTolls=True&mode=driving"
@@ -99,6 +99,18 @@ func main() {
 		if err != nil {
 			fmt.Println(err)
 
+		}
+
+		// send to metrics
+		// url = "http://104.45.183.75/metrics/maps"
+		url = "http://metrics:8005/maps"
+		req, err = http.NewRequest("POST", url, nil)
+		if err != nil {
+			fmt.Println(err)
+		}
+		res, err = client.Do(req)
+		if err != nil {
+			fmt.Println(err)
 		}
 
 		//desifriranje jsona
