@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"time"
 )
 
 type Maps struct {
@@ -74,15 +75,17 @@ func main() {
 	app.Use(cors.New())
 
 	app.Get("/test", func(c *fiber.Ctx) error {
+
+		start := time.Now()
 		// APIKEY := os.Getenv("API_KEY")
 		APIKEY := "AIzaSyB8YSNqlWm6FMKuOfBnHL223E7m6Uate6Q"
 		origin := "Ptuj"
 		destination := "Maribor"
 		params := "&units=metrics&avoidTolls=True&mode=driving"
-		url := "https://maps.googleapis.com/maps/api/directions/json?origin=" + origin + "&destination=" + destination + params + "&key=" + APIKEY
+		apiURL := "https://maps.googleapis.com/maps/api/directions/json?origin=" + origin + "&destination=" + destination + params + "&key=" + APIKEY
 		method := "GET"
 		client := &http.Client{}
-		req, err := http.NewRequest(method, url, nil)
+		req, err := http.NewRequest(method, apiURL, nil)
 		if err != nil {
 			fmt.Println("empty")
 			fmt.Println(err)
@@ -99,18 +102,6 @@ func main() {
 		if err != nil {
 			fmt.Println(err)
 
-		}
-
-		// send to metrics
-		// url = "http://104.45.183.75/metrics/maps"
-		url = "http://metrics:8005/maps"
-		req, err = http.NewRequest("POST", url, nil)
-		if err != nil {
-			fmt.Println(err)
-		}
-		res, err = client.Do(req)
-		if err != nil {
-			fmt.Println(err)
 		}
 
 		//desifriranje jsona
@@ -141,6 +132,23 @@ func main() {
 			fmt.Println(err)
 		}
 
+		// send to metrics
+		// apiURL = "http://104.45.183.75/metrics/maps"
+		timeElapsed := time.Since(start).String()
+		apiURL = "http://metrics:8005/maps/" + timeElapsed[:len(timeElapsed)-2]
+
+		req, err = http.NewRequest("POST", apiURL, nil)
+		if err != nil {
+			fmt.Println(err)
+		}
+		req.Header.Add("Content-Type", "application/json")
+		res, err = client.Do(req)
+		if err != nil {
+			fmt.Println(err)
+		}
+		defer res.Body.Close()
+
+		// return
 		return c.Send(vrni)
 	})
 	app.Get("/mapsDummy", func(c *fiber.Ctx) error {
