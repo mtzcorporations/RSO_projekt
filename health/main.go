@@ -10,7 +10,7 @@ import (
 )
 
 func checkAut() string {
-	//url := "http://10.0.143.93:8004/health"
+	//url := "http://10.0.25.41:8004/health"
 	url := "http://authentication:8003/"                  //weather
 	spaceClient := http.Client{Timeout: time.Second * 20} // Timeout after 2 seconds
 	req, err := http.NewRequest(http.MethodGet, url, nil)
@@ -38,7 +38,7 @@ func checkAut() string {
 	return string(body)
 }
 func checkMaps() string {
-	//url := "http://10.0.143.93:8004/health"
+	//url := "http://10.0.196.151:8004/health"
 	url := "http://mapsapi:8002/health"                   //weather
 	spaceClient := http.Client{Timeout: time.Second * 20} // Timeout after 2 seconds
 	req, err := http.NewRequest(http.MethodGet, url, nil)
@@ -61,7 +61,7 @@ func checkMaps() string {
 	return string(body)
 }
 func checkGas() string {
-	//url := "http://10.0.143.93:8004/health"
+	//url := "http://10.0.25.125:8004/health"
 	url := "http://gasapi:8004/health"                    //weather
 	spaceClient := http.Client{Timeout: time.Second * 20} // Timeout after 2 seconds
 	req, err := http.NewRequest(http.MethodGet, url, nil)
