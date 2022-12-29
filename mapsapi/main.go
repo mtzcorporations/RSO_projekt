@@ -8,6 +8,8 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"runtime"
+	"strconv"
 	"time"
 )
 
@@ -67,6 +69,26 @@ func tipiPoti(pot string) string {
 		return "bicycling"
 	}
 	return "driving"
+}
+
+func sendMetrics(timeElapsed string) {
+
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+	memoryUsage := strconv.Itoa(int(m.Sys))
+	// apiURL = "http://104.45.183.75/metrics/maps"
+	apiURL := "http://metrics:8005/maps/" + timeElapsed[:len(timeElapsed)-2] + "/" + memoryUsage
+	req, err := http.NewRequest("POST", apiURL, nil)
+	if err != nil {
+		fmt.Println(err)
+	}
+	req.Header.Add("Content-Type", "application/json")
+	client := &http.Client{}
+	res, err := client.Do(req)
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer res.Body.Close()
 }
 func main() {
 	//getApiDat_testFunc()
@@ -133,20 +155,8 @@ func main() {
 		}
 
 		// send to metrics
-		// apiURL = "http://104.45.183.75/metrics/maps"
 		timeElapsed := time.Since(start).String()
-		apiURL = "http://metrics:8005/maps/" + timeElapsed[:len(timeElapsed)-2]
-
-		req, err = http.NewRequest("POST", apiURL, nil)
-		if err != nil {
-			fmt.Println(err)
-		}
-		req.Header.Add("Content-Type", "application/json")
-		res, err = client.Do(req)
-		if err != nil {
-			fmt.Println(err)
-		}
-		defer res.Body.Close()
+		sendMetrics(timeElapsed)
 
 		// return
 		return c.Send(vrni)
