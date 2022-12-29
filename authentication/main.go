@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	jwtware "github.com/gofiber/jwt/v3"
@@ -122,12 +121,23 @@ func register(c *fiber.Ctx) error {
 }
 
 func main() {
+	health := healthCheck2{
+		Name:      "Connection",
+		Status:    "No test",
+		Timestamp: time.Now().Format(time.RFC3339),
+	}
 	//TODO use .env variable
 	var dsn string
 	dsn = "postgres://zlqwvdmx:x0tl7AVnX4zi0rsqeKcf8R2dhjvqOpib@ella.db.elephantsql.com/zlqwvdmx"
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
+		health.Status = "Error"
+		health.Error = append(health.Error, err.Error())
 		panic("failed to connect database")
+
+	} else {
+		health.Status = "Ok"
+		health.Error = append(health.Error, "None")
 	}
 	db.AutoMigrate(User{})
 
@@ -142,11 +152,11 @@ func main() {
 		}
 		healthAr := arrayHealthCheck{
 			Id:     "Authentication",
-			Health: []healthCheck2{healthC},
+			Health: []healthCheck2{healthC, health},
 		}
 
 		healt_json, err := json.Marshal(healthAr) // back to json
-		fmt.Println(string(healt_json))
+
 		if err != nil {
 			panic(err)
 		}

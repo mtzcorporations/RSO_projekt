@@ -30,7 +30,7 @@ func checkAut() string {
 	}
 
 	body, readErr := ioutil.ReadAll(res.Body)
-	fmt.Println("to je " + string(body))
+
 	if readErr != nil {
 		fmt.Println(err.Error())
 		return "Authentication: " + readErr.Error()
