@@ -87,8 +87,8 @@ import (
 	}
 */
 func checkWeather() string {
-	url := "http://104.45.183.75/weather/health"
-	//url := "http://weatherapi:8001/health"                //weather
+	//url := "http://104.45.183.75/weather/health"
+	url := "http://weatherapi:8001/health"                //weather
 	spaceClient := http.Client{Timeout: time.Second * 20} // Timeout after 2 seconds
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
