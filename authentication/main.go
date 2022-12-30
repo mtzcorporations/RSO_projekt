@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	jwtware "github.com/gofiber/jwt/v3"
@@ -23,6 +24,21 @@ type User struct {
 type LoginRequest struct {
 	Username string `json:"name"`
 	Password string `json:"-"`
+}
+
+type arrayHealthCheck struct {
+	Id     string         `json:"id"`
+	Health []healthCheck2 `json:"types"`
+}
+type healthCheck2 struct {
+	// Name of the health check
+	Name string `json:"name"`
+	// Status of the health check
+	Status string `json:"status"`
+	// Error message of the health check
+	Error []string `json:"error"`
+	// Timestamp of the health check
+	Timestamp string `json:"timestamp"`
 }
 
 func (user *User) HashPassword(password string) error {
@@ -106,18 +122,47 @@ func register(c *fiber.Ctx) error {
 }
 
 func main() {
+	health := healthCheck2{
+		Name:      "Connection",
+		Status:    "No test",
+		Timestamp: time.Now().Format(time.RFC3339),
+	}
 	//TODO use .env variable
 	var dsn string
 	dsn = "postgres://zlqwvdmx:x0tl7AVnX4zi0rsqeKcf8R2dhjvqOpib@ella.db.elephantsql.com/zlqwvdmx"
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
+		health.Status = "Error"
+		health.Error = append(health.Error, err.Error())
 		panic("failed to connect database")
+
+	} else {
+		health.Status = "Ok"
+		health.Error = append(health.Error, "None")
 	}
 	db.AutoMigrate(User{})
 
 	app := fiber.New()
 	app.Use(cors.New())
+	app.Get("/", func(c *fiber.Ctx) error {
+		healthC := healthCheck2{
+			Name:      "Container",
+			Status:    "OK",
+			Error:     []string{"None"},
+			Timestamp: time.Now().Format(time.RFC3339),
+		}
+		healthAr := arrayHealthCheck{
+			Id:     "Authentication",
+			Health: []healthCheck2{healthC, health},
+		}
 
+		healt_json, err := json.Marshal(healthAr) // back to json
+
+		if err != nil {
+			panic(err)
+		}
+		return c.SendString(string(healt_json))
+	})
 	// Login route
 	app.Post("/login", func(c *fiber.Ctx) error {
 		req := new(LoginRequest)
@@ -194,7 +239,7 @@ func main() {
 	})
 
 	// Unauthenticated route
-	app.Get("/", accessible)
+	//app.Get("/", accessible)
 
 	// JWT Middleware
 	app.Use(jwtware.New(jwtware.Config{
