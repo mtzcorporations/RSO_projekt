@@ -15,7 +15,7 @@ spec:
         app: health
     spec:
       containers:
-        - name: posts
+        - name: health
           image: rkogolang/repo:health_img
           ports:
             - containerPort: 8080

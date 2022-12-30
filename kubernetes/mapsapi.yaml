@@ -15,7 +15,7 @@ spec:
         app: mapsapi
     spec:
       containers:
-        - name: posts
+        - name: mapsapi
           image: rkogolang/repo:mapsapi_img
           ports:
             - containerPort: 8002
