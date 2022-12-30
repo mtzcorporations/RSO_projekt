@@ -46,6 +46,7 @@ type Mapsout struct {
 	}
 }
 
+
 type arrayHealthCheck struct {
 	Id     string        `json:"id"`
 	Health []healthCheck `json:"types"`
@@ -60,7 +61,6 @@ type healthCheck struct {
 	// Timestamp of the health check
 	Timestamp string `json:"timestamp"`
 }
-
 // string function , returning string
 func tipiPoti(pot string) string {
 	// če je pot Peš vrni walking, če je pot z avtomobilom vrni driving, če je pot z vlakom vrni transit, če je kolo vrni bicycling
@@ -87,9 +87,11 @@ func main() {
 	app.Get("/test", func(c *fiber.Ctx) error {
 		APIKEY := os.Getenv("API_KEY")
 		origin := "Ptuj"
+
+		waypoints := "&waypoints=Celje|Ljubljana" // | je ločilo med waypointi
 		destination := "Maribor"
-		params := "&units=metrics&avoidTolls=True&mode=driving"
-		url := "https://maps.googleapis.com/maps/api/directions/json?origin=" + origin + "&destination=" + destination + params + "&key=" + APIKEY
+		params := "&units=metrics&mode=driving"
+		url := "https://maps.googleapis.com/maps/api/directions/json?origin=" + origin + "&destination=" + destination + waypoints + params + "&key=" + APIKEY
 		method := "GET"
 		client := &http.Client{}
 		req, err := http.NewRequest(method, url, nil)
@@ -143,12 +145,14 @@ func main() {
 			Lat float64 `json:"lat"`
 			Lng float64 `json:"lng"`
 		}{mapa.Routes[0].Legs[0].StartLocation.Lat, mapa.Routes[0].Legs[0].StartLocation.Lng})
-
-		for i := 1; i < len(mapa.Routes[0].Legs[0].Steps); i++ {
-			output.Koordinate = append(output.Koordinate, struct {
-				Lat float64 `json:"lat"`
-				Lng float64 `json:"lng"`
-			}{mapa.Routes[0].Legs[0].Steps[i].EndLocation.Lat, mapa.Routes[0].Legs[0].Steps[i].EndLocation.Lng})
+		//fmt.Println(len(mapa.Routes[0].Legs))
+		for j := 0; j < len(mapa.Routes[0].Legs); j++ {
+			for i := 0; i < len(mapa.Routes[0].Legs[j].Steps); i++ {
+				output.Koordinate = append(output.Koordinate, struct {
+					Lat float64 `json:"lat"`
+					Lng float64 `json:"lng"`
+				}{mapa.Routes[0].Legs[j].Steps[i].EndLocation.Lat, mapa.Routes[0].Legs[j].Steps[i].EndLocation.Lng})
+			}
 		}
 		vrni, err := json.Marshal(output)
 		if err != nil {
