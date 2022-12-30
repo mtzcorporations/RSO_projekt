@@ -15,7 +15,7 @@ spec:
         app: gasapi
     spec:
       containers:
-        - name: posts
+        - name: gasapi
           image: rkogolang/repo:gasapi_img
           ports:
             - containerPort: 8004

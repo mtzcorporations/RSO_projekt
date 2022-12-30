@@ -15,7 +15,7 @@ spec:
         app: weatherapi
     spec:
       containers:
-        - name: posts
+        - name: weatherapi
           image: rkogolang/repo:weatherapi_img
           ports:
             - containerPort: 8001
