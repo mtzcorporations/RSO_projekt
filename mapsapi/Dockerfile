@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM golang:1.16-alpine
+FROM golang:1.18-alpine
 
 WORKDIR /mapsapi
 # Getting go files into image
@@ -10,9 +10,9 @@ COPY main.go .
 # Installing dependencies
 RUN go mod download
 # Compiling
-RUN go build -o /posts-compiled
+RUN go build -o /mapsapi-compiled
 
 EXPOSE 8002
 
 #CMD [ "go", "run", "main.go" ]
-CMD ["/posts-compiled"]
+CMD ["/mapsapi-compiled"]
