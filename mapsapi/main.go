@@ -7,7 +7,6 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"io/ioutil"
 	"net/http"
-	"os"
 	"time"
 )
 
@@ -46,7 +45,6 @@ type Mapsout struct {
 	}
 }
 
-
 type arrayHealthCheck struct {
 	Id     string        `json:"id"`
 	Health []healthCheck `json:"types"`
@@ -61,6 +59,7 @@ type healthCheck struct {
 	// Timestamp of the health check
 	Timestamp string `json:"timestamp"`
 }
+
 // string function , returning string
 func tipiPoti(pot string) string {
 	// če je pot Peš vrni walking, če je pot z avtomobilom vrni driving, če je pot z vlakom vrni transit, če je kolo vrni bicycling
@@ -85,7 +84,7 @@ func main() {
 	app.Use(cors.New())
 
 	app.Get("/test", func(c *fiber.Ctx) error {
-		APIKEY := os.Getenv("API_KEY")
+		APIKEY := "AIzaSyB8YSNqlWm6FMKuOfBnHL223E7m6Uate6Q" //os.Getenv("API_KEY")
 		origin := "Ptuj"
 
 		waypoints := "&waypoints=Celje|Ljubljana" // | je ločilo med waypointi
