@@ -27,6 +27,11 @@ services:
      build: gasapi/.
      ports:
        - "8004:8004"
+   health:
+     container_name: health_container
+     build: health/.
+     ports:
+       - "8080:8080"
 
 
 volumes:
