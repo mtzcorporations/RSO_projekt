@@ -7,6 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -84,7 +85,7 @@ func main() {
 	app.Use(cors.New())
 
 	app.Get("/test", func(c *fiber.Ctx) error {
-		APIKEY := "AIzaSyB8YSNqlWm6FMKuOfBnHL223E7m6Uate6Q" //os.Getenv("API_KEY")
+		APIKEY := os.Getenv("API_KEY")
 		origin := "Ptuj"
 
 		waypoints := "&waypoints=Celje|Ljubljana" // | je ločilo med waypointi

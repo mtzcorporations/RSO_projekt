@@ -97,7 +97,7 @@ func main() {
 		} else {
 			return c.Send([]byte("Kolo"))
 		}
-		return c.SendString(string(weather_lj_json))
+
 	})
 
 	app.Get("/", func(c *fiber.Ctx) error {
