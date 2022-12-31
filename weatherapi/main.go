@@ -42,7 +42,7 @@ func sendMetrics(timeElapsed string) {
 	var m runtime.MemStats
 	runtime.ReadMemStats(&m)
 	memoryUsage := strconv.Itoa(int(m.Sys))
-	base_url := "http://104.45.183.75/api/metricsapi/weather/"
+	base_url := "http://104.45.183.75/api/metrics/weather/"
 	apiURL := base_url + timeElapsed[:len(timeElapsed)-2] + "/" + memoryUsage
 	req, err := http.NewRequest("POST", apiURL, nil)
 	if err != nil {
