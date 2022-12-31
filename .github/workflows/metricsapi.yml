@@ -5,7 +5,7 @@ on:
     branches:
       - 'main'
       - 'dev'
-      - 'metrics'
+      - 'metricsapi'
 
 
 jobs:
@@ -31,7 +31,7 @@ jobs:
         name: Build and push
         uses: docker/build-push-action@v3
         with:
-          context: ./metrics
-          file: ./metrics/Dockerfile
+          context: ./metricsapi
+          file: ./metricsapi/Dockerfile
           push: true
           tags: rkogolang/repo:metricsapi_img

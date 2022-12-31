@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM golang:1.16-alpine
+FROM golang:1.18-alpine
 
 WORKDIR /metrics
 # Getting go files into image
@@ -10,9 +10,9 @@ COPY main.go .
 # Installing dependencies
 RUN go mod download
 # Compiling
-RUN go build -o /metrics-compiled
+RUN go build -o /metricsapi-compiled
 
 EXPOSE 8005
 
 #CMD [ "go", "run", "main.go" ]
-CMD ["/metrics-compiled"]
+CMD ["/metricsapi-compiled"]

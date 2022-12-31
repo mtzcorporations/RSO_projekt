@@ -39,7 +39,7 @@ spec:
             name: posts-service
             port:
               number: 8000
-      - path: /metrics(/|$)(.*)
+      - path: /api/metrics(/|$)(.*)
         pathType: Prefix
         backend:
           service:

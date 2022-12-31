@@ -33,9 +33,9 @@ services:
      ports:
        - "8080:8080"
 
-   metrics:
+   metricsapi:
      container_name: metrics_container
-     build: metrics/.
+     build: metricsapi/.
      ports:
        - "8005:8005"
 

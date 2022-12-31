@@ -14,7 +14,7 @@ type Metrics struct {
 	totalMemoryUsage int     `json:"totalmemoryusage"`
 }
 
-// Initialize service metrics
+// Initialize service metricsapi
 var servicesMetrics = map[string]Metrics{
 	"weather": {
 		serviceName:      "weather service",

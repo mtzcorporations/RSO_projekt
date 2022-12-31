@@ -81,7 +81,7 @@ func sendMetrics(timeElapsed string) {
 	var m runtime.MemStats
 	runtime.ReadMemStats(&m)
 	memoryUsage := strconv.Itoa(int(m.Sys))
-	base_url := "http://104.45.183.75/api/metrics/maps/"
+	base_url := "http://104.45.183.75/api/metricsapi/maps/"
 	apiURL := base_url + timeElapsed[:len(timeElapsed)-2] + "/" + memoryUsage
 	req, err := http.NewRequest("POST", apiURL, nil)
 	if err != nil {
@@ -115,7 +115,7 @@ func main() {
 
 		waypoints := "&waypoints=Celje|Ljubljana" // | je ločilo med waypointi
 		destination := "Maribor"
-		params := "&units=metrics&mode=driving"
+		params := "&units=metricsapi&mode=driving" // TODO WARNING maybe wrong refactor
 		apiUrl := "https://maps.googleapis.com/maps/api/directions/json?origin=" + origin + "&destination=" + destination + waypoints + params + "&key=" + APIKEY
 		method := "GET"
 		client := &http.Client{}
@@ -187,7 +187,7 @@ func main() {
 			health.Timestamp = time.Now().Format(time.RFC3339)
 		}
 
-		// send to metrics
+		// send to metricsapi
 		timeElapsed := time.Since(start).String()
 		sendMetrics(timeElapsed)
 

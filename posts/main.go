@@ -29,7 +29,7 @@ func sendMetrics(timeElapsed string) {
 	var m runtime.MemStats
 	runtime.ReadMemStats(&m)
 	memoryUsage := strconv.Itoa(int(m.Sys))
-	base_url := "http://104.45.183.75/api/metrics/posts/"
+	base_url := "http://104.45.183.75/api/metricsapi/posts/"
 	apiURL := base_url + timeElapsed[:len(timeElapsed)-2] + "/" + memoryUsage
 	req, err := http.NewRequest("POST", apiURL, nil)
 	if err != nil {
@@ -84,7 +84,7 @@ func main() {
 		//save this info in the database
 		db.Model(&User{}).Where("id = ?", req.Id).Update("rating", req.Rating)
 
-		// send to metrics
+		// send to metricsapi
 		timeElapsed := time.Since(start).String()
 		sendMetrics(timeElapsed)
 

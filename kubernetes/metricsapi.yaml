@@ -15,7 +15,7 @@ spec:
         app: metricsapi
     spec:
       containers:
-        - name: metrics
+        - name: metricsapi
           image: rkogolang/repo:metricsapi_img
           ports:
             - containerPort: 8005
