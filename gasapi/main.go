@@ -7,6 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"io/ioutil"
 	"net/http"
+	"time"
 )
 
 type jsn struct {
@@ -19,6 +20,20 @@ type jsn struct {
 type jsnret struct {
 	Bencin string `json:"bencin"`
 	Dizel  string `json:"dizel"`
+}
+type arrayHealthCheck struct {
+	Id     string        `json:"id"`
+	Health []healthCheck `json:"types"`
+}
+type healthCheck struct {
+	// Name of the health check
+	Name string `json:"name"`
+	// Status of the health check
+	Status string `json:"status"`
+	// Error message of the health check
+	Error []string `json:"error"`
+	// Timestamp of the health check
+	Timestamp string `json:"timestamp"`
 }
 
 func getDataJson() {
@@ -60,6 +75,11 @@ func getDataJson() {
 
 }
 func main() {
+	health := healthCheck{
+		Name:      "Api connection",
+		Status:    "No test",
+		Timestamp: time.Now().Format(time.RFC3339),
+	}
 	//getDataJson()
 	app := fiber.New()
 
@@ -75,15 +95,23 @@ func main() {
 
 		res, err := http.DefaultClient.Do(req)
 		if err != nil {
-			fmt.Println("empty")
+			//fmt.Println("empty")
 			fmt.Println(err)
-
+			health.Status = "ERROR"
+			health.Error = append(health.Error, err.Error())
+			health.Timestamp = time.Now().Format(time.RFC3339)
+		} else {
+			health.Status = "OK"
+			health.Error = []string{"None"}
+			health.Timestamp = time.Now().Format(time.RFC3339)
 		}
 
 		defer res.Body.Close()
 		body, _ := ioutil.ReadAll(res.Body)
 		if err != nil {
 			fmt.Println(err)
+			health.Status = "ERROR"
+			health.Error = append(health.Error, err.Error())
 
 		}
 		var data jsn
@@ -91,6 +119,8 @@ func main() {
 		if err := json.Unmarshal(body, &data); err != nil { // Parse []byte to go struct pointer
 			fmt.Println(err)
 			fmt.Println("Can not unmarshal JSON")
+			health.Status = "ERROR"
+			health.Error = append(health.Error, err.Error())
 		}
 		retrn.Dizel = data.Result.Dizel
 		retrn.Bencin = data.Result.Bencin
@@ -104,7 +134,24 @@ func main() {
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.Send([]byte("Gasoline api container working"))
 	})
+	app.Get("/health", func(c *fiber.Ctx) error {
+		healthC := healthCheck{
+			Name:      "Container",
+			Status:    "OK",
+			Error:     []string{"None"},
+			Timestamp: time.Now().Format(time.RFC3339),
+		}
+		healthAr := arrayHealthCheck{
+			Id:     "GasApi",
+			Health: []healthCheck{healthC, health},
+		}
 
+		healt_json, err := json.Marshal(healthAr) // back to json
+		if err != nil {
+			panic(err)
+		}
+		return c.SendString(string(healt_json))
+	})
 	app.Listen(":8004")
 
 }

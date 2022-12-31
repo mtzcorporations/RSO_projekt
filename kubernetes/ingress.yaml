@@ -24,14 +24,14 @@ spec:
           service:
             name: mapsapi-service
             port:
-              number: 8001
+              number: 8002
       - path: /api/weather(/|$)(.*)
         pathType: Prefix
         backend:
           service:
             name: weatherapi-service
             port:
-              number: 8002
+              number: 8001
       - path: /posts(/|$)(.*)
         pathType: Prefix
         backend:

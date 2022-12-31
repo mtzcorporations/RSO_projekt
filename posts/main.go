@@ -1,24 +1,24 @@
 package main
 
 import (
-	"encoding/json"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"io/ioutil"
-	"log"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 	"net/http"
-	"strconv"
-	"time"
 )
 
-type weather struct {
-	Name string `json:"name"`
-	Main struct {
-		Kelvin float64 `json:"temp"`
-	} `json:"main"`
-	Oblaki []struct {
-		Sonce string `json:"main"`
-	} `json:"weather"`
+type User struct {
+	Id       uint   `json:"id"`
+	Name     string `json:"name"`
+	Username string `json:"username" gorm:"unique"`
+	Email    string `json:"email" gorm:"unique"`
+	Rating   string `json:"rating"`
+	Password string `json:"-"`
+}
+type RatingRequest struct {
+	Id     uint   `json:"id"`
+	Rating string `json:"rating"`
 }
 
 func main() {
@@ -37,72 +37,39 @@ func main() {
 	// }
 	// db.AutoMigrate(Post{})
 
-	app := fiber.New()
+	var dsn string
+	dsn = "postgres://zlqwvdmx:x0tl7AVnX4zi0rsqeKcf8R2dhjvqOpib@ella.db.elephantsql.com/zlqwvdmx"
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		panic("failed to connect database")
+	}
 
+	app := fiber.New()
 	app.Use(cors.New())
 
-	app.Get("/api/test", func(c *fiber.Ctx) error {
+	app.Post("/rate/driver", func(c *fiber.Ctx) error {
 		// Do api request to another container
 		// url := "http://weatherapi:8001/api/test"
-		url := "http://10.0.143.93:8001/api/test"
-		spaceClient := http.Client{Timeout: time.Second * 20} // Timeout after 2 seconds
-		req, err := http.NewRequest(http.MethodGet, url, nil)
-		if err != nil {
-			log.Fatal(err)
+		req := new(User)
+		if err := c.BodyParser(req); err != nil {
+			return err
 		}
-		req.Header.Set("User-Agent", "test")
-		res, getErr := spaceClient.Do(req)
-		if getErr != nil {
-			log.Fatal(getErr)
+		if req.Rating == "" {
+			return fiber.NewError(fiber.StatusBadRequest, "invalid credentials")
 		}
-		if res.Body != nil {
-			defer res.Body.Close()
-		}
-
-		body, readErr := ioutil.ReadAll(res.Body)
-		if readErr != nil {
-			log.Fatal(readErr)
-		}
-
-		weather_lj := weather{}
-		jsonErr := json.Unmarshal([]byte(body), &weather_lj) // json to our "weather" struct
-		if jsonErr != nil {
-			log.Fatal(jsonErr)
-		}
-
-		degrees := strconv.FormatFloat(weather_lj.Main.Kelvin, 'E', -1, 64)
-		weather_str := "V " + weather_lj.Name + " je " + degrees + " stopinj"
-		return c.SendString(weather_str)
+		//save this info in the database
+		db.Model(&User{}).Where("id = ?", req.Id).Update("rating", req.Rating)
+		return c.SendStatus(fiber.StatusAccepted)
 	})
 
-	app.Get("/api/maps", func(c *fiber.Ctx) error {
-		// Do api request to another container
-		//url := "http://mapsapi:8002/api/mapsDummy"
-		url := "http://10.0.196.151:8002/api/maps"
-		spaceClient := http.Client{Timeout: time.Second * 20} // Timeout after 2 seconds
-		req, err := http.NewRequest(http.MethodGet, url, nil)
-		if err != nil {
-			log.Fatal(err)
-		}
-		req.Header.Set("User-Agent", "test")
-		res, getErr := spaceClient.Do(req)
-		if getErr != nil {
-			log.Fatal(getErr)
-		}
-		if res.Body != nil {
-			defer res.Body.Close()
-		}
-
-		body, readErr := ioutil.ReadAll(res.Body)
-		if readErr != nil {
-			log.Fatal(readErr)
-		}
-
-		return c.SendString("koordinata je: " + string(body))
+	app.Get("/users", func(c *fiber.Ctx) error {
+		result := []User{}
+		db.Find(&result)
+		return c.Status(http.StatusOK).JSON(&result)
 	})
 
 	app.Get("/", func(c *fiber.Ctx) error {
-		return c.Send([]byte("Posts container working"))
+		return c.JSON([]byte("Posts container working"))
 	})
 
 	app.Listen(":8000")
