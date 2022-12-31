@@ -54,7 +54,7 @@ func main() {
 		service_name := c.Params("service_name")
 		if servicesMetrics[service_name].numApiCalls > 0 {
 			numOfApiCallsStr := "Št klicev na " + service_name + " je: " + strconv.Itoa(servicesMetrics[service_name].numApiCalls) + "\n"
-			averageTimeStr := "Povprečen čas " + service_name + " je: " + fmt.Sprintf("%f", servicesMetrics[service_name].totalTime/float64(servicesMetrics[service_name].numApiCalls)) + "\n"
+			averageTimeStr := "Povprečen čas " + service_name + " je: " + fmt.Sprintf("%f", servicesMetrics[service_name].totalTime/float64(servicesMetrics[service_name].numApiCalls)) + " ms\n"
 			averageMemUsgStr := "Povprečna poraba spomina " + service_name + " je: " + strconv.Itoa(servicesMetrics[service_name].totalMemoryUsage/servicesMetrics[service_name].numApiCalls) + " MB\n"
 			return c.Send([]byte(numOfApiCallsStr + averageTimeStr + averageMemUsgStr))
 		} else {

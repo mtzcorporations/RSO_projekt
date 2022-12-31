@@ -2,11 +2,14 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"runtime"
+	"strconv"
 	"time"
 )
 
@@ -35,6 +38,25 @@ type healthCheck struct {
 	Timestamp string `json:"timestamp"`
 }
 
+func sendMetrics(timeElapsed string) {
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+	memoryUsage := strconv.Itoa(int(m.Sys))
+	base_url := "http://104.45.183.75/api/metrics/weather/"
+	apiURL := base_url + timeElapsed[:len(timeElapsed)-2] + "/" + memoryUsage
+	req, err := http.NewRequest("POST", apiURL, nil)
+	if err != nil {
+		fmt.Println(err)
+	}
+	req.Header.Add("Content-Type", "application/json")
+	client := &http.Client{}
+	res, err := client.Do(req)
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer res.Body.Close()
+}
+
 func main() {
 	health := healthCheck{
 		Name:      "Api connection",
@@ -47,6 +69,7 @@ func main() {
 	app.Use(cors.New())
 
 	app.Get("/weather", func(c *fiber.Ctx) error {
+		start := time.Now()
 		//url := "http://api.openweathermap.org/data/2.5/weather?lat=46.05&lon=14.50&units=metric&appid=ab8428d16bce2694fb18fbab32071873"
 		url := "https://api.openweathermap.org/data/2.5/weather?lat=46.05&lon=14.50&appid=ab8428d16bce2694fb18fbab32071873"
 
@@ -91,6 +114,10 @@ func main() {
 			health.Error = append(health.Error, jsonErr.Error())
 		}
 		//fmt.Println(weather_lj.Name, weather_lj.Main, weather_lj.Oblaki[0])
+
+		// send to metrics
+		timeElapsed := time.Since(start).String()
+		sendMetrics(timeElapsed)
 
 		if weather_lj.Main.Humidity > 50 {
 			return c.Send([]byte("Avto"))
