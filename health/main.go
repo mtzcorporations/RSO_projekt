@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"io/ioutil"
@@ -8,84 +9,82 @@ import (
 	"time"
 )
 
-/*
-	func checkAut() string {
-		//url := "http://10.0.25.41:8004/health"
-		url := "http://authentication:8003/"                  //weather
-		spaceClient := http.Client{Timeout: time.Second * 20} // Timeout after 2 seconds
-		req, err := http.NewRequest(http.MethodGet, url, nil)
-		if err != nil {
-			fmt.Println(err.Error())
-			return "Authentication: " + err.Error()
-		}
-		req.Header.Set("User-Agent", "test")
-		res, getErr := spaceClient.Do(req)
-		if getErr != nil {
-			fmt.Println(err.Error())
-			return "Authentication " + getErr.Error()
-		}
-		if res.Body != nil {
+func checkAut() string {
+	url := "http://104.45.183.75/authentication"
+	//url := "http://authentication:8003/"                  //weather
+	spaceClient := http.Client{Timeout: time.Second * 20} // Timeout after 2 seconds
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		fmt.Println(err.Error())
+		return "Authentication: " + err.Error()
+	}
+	req.Header.Set("User-Agent", "test")
+	res, getErr := spaceClient.Do(req)
+	if getErr != nil {
+		fmt.Println(err.Error())
+		return "Authentication " + getErr.Error()
+	}
+	if res.Body != nil {
 
-			defer res.Body.Close()
-		}
-
-		body, readErr := ioutil.ReadAll(res.Body)
-
-		if readErr != nil {
-			fmt.Println(err.Error())
-			return "Authentication: " + readErr.Error()
-		}
-		return string(body)
+		defer res.Body.Close()
 	}
 
-	func checkMaps() string {
-		//url := "http://10.0.196.151:8004/health"
-		url := "http://mapsapi:8002/health"                   //weather
-		spaceClient := http.Client{Timeout: time.Second * 20} // Timeout after 2 seconds
-		req, err := http.NewRequest(http.MethodGet, url, nil)
-		if err != nil {
-			return "MapsApi: " + err.Error()
-		}
-		req.Header.Set("User-Agent", "test")
-		res, getErr := spaceClient.Do(req)
-		if getErr != nil {
-			return "MapsApi: " + getErr.Error()
-		}
-		if res.Body != nil {
-			defer res.Body.Close()
-		}
+	body, readErr := ioutil.ReadAll(res.Body)
 
-		body, readErr := ioutil.ReadAll(res.Body)
-		if readErr != nil {
-			return "MapsApi: " + readErr.Error()
-		}
-		return string(body)
+	if readErr != nil {
+		fmt.Println(err.Error())
+		return "Authentication: " + readErr.Error()
+	}
+	return string(body)
+}
+
+func checkMaps() string {
+	url := "http://104.45.183.75/api/maps/health"
+	//url := "http://mapsapi:8002/health"                   //weather
+	spaceClient := http.Client{Timeout: time.Second * 20} // Timeout after 2 seconds
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return "MapsApi: " + err.Error()
+	}
+	req.Header.Set("User-Agent", "test")
+	res, getErr := spaceClient.Do(req)
+	if getErr != nil {
+		return "MapsApi: " + getErr.Error()
+	}
+	if res.Body != nil {
+		defer res.Body.Close()
 	}
 
-	func checkGas() string {
-		//url := "http://10.0.25.125:8004/health"
-		url := "http://gasapi:8004/health"                    //weather
-		spaceClient := http.Client{Timeout: time.Second * 20} // Timeout after 2 seconds
-		req, err := http.NewRequest(http.MethodGet, url, nil)
-		if err != nil {
-			return "GasApi: " + err.Error()
-		}
-		req.Header.Set("User-Agent", "test")
-		res, getErr := spaceClient.Do(req)
-		if getErr != nil {
-			return "GasApi: " + getErr.Error()
-		}
-		if res.Body != nil {
-			defer res.Body.Close()
-		}
-
-		body, readErr := ioutil.ReadAll(res.Body)
-		if readErr != nil {
-			return "GasApi: " + readErr.Error()
-		}
-		return string(body)
+	body, readErr := ioutil.ReadAll(res.Body)
+	if readErr != nil {
+		return "MapsApi: " + readErr.Error()
 	}
-*/
+	return string(body)
+}
+
+func checkGas() string {
+	url := "http://104.45.183.75/api/gas/health"
+	//url := "http://gasapi:8004/health"                    //weather
+	spaceClient := http.Client{Timeout: time.Second * 20} // Timeout after 2 seconds
+	req, err := http.NewRequest(http.MethodGet, url, nil)
+	if err != nil {
+		return "GasApi: " + err.Error()
+	}
+	req.Header.Set("User-Agent", "test")
+	res, getErr := spaceClient.Do(req)
+	if getErr != nil {
+		return "GasApi: " + getErr.Error()
+	}
+	if res.Body != nil {
+		defer res.Body.Close()
+	}
+
+	body, readErr := ioutil.ReadAll(res.Body)
+	if readErr != nil {
+		return "GasApi: " + readErr.Error()
+	}
+	return string(body)
+}
 func checkWeather() string {
 	url := "http://104.45.183.75/api/weather/health"
 	// url := "http://weatherapi:8001/health"                //weather
@@ -118,14 +117,15 @@ func main() {
 
 	app.Get("/health", func(c *fiber.Ctx) error {
 		weatherHealth := checkWeather()
-		//GasHealth := checkGas()
-		//MapsHealth := checkMaps()
-		//AuthHealth := checkAut()
-		//return c.SendString(weatherHealth + "\n " + GasHealth + "\n " + MapsHealth + "\n " + AuthHealth)
-		return c.SendString(weatherHealth)
+		GasHealth := checkGas()
+		MapsHealth := checkMaps()
+		AuthHealth := checkAut()
+		return c.SendString(weatherHealth + "\n " + GasHealth + "\n " + MapsHealth + "\n " + AuthHealth)
+		//return c.SendString(weatherHealth)
 
 	})
 	app.Get("/", func(c *fiber.Ctx) error {
+		fmt.Println("Health Check - api container working")
 		return c.SendString("Dela")
 
 	})
