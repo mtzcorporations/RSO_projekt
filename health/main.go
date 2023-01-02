@@ -125,6 +125,10 @@ func main() {
 		return c.SendString(weatherHealth)
 
 	})
+	app.Get("/", func(c *fiber.Ctx) error {
+		return c.SendString("Dela")
+
+	})
 
 	app.Listen(":8080")
 
