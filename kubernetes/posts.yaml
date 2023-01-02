@@ -19,6 +19,12 @@ spec:
           image: rkogolang/repo:posts_img
           ports:
             - containerPort: 8000
+          env:
+            - name: JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: map-secret
+                  key: jwtkey
 
 ---
 apiVersion: v1

@@ -9,6 +9,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"os"
 	"time"
 )
 
@@ -77,7 +78,7 @@ func login(c *fiber.Ctx) error {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	// Generate encoded token and send it as response.
-	t, err := token.SignedString([]byte("secret"))
+	t, err := token.SignedString([]byte(os.Getenv("API_KEY")))
 	if err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
@@ -95,7 +96,7 @@ func authentication() func(c *fiber.Ctx) error {
 		ErrorHandler: func(ctx *fiber.Ctx, err error) error {
 			return fiber.NewError(fiber.StatusUnauthorized)
 		},
-		SigningKey: []byte("secret"),
+		SigningKey: []byte(os.Getenv("API_KEY")),
 	})
 }
 
@@ -191,7 +192,7 @@ func main() {
 			token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 			// Generate encoded token and send it as response.
-			t, err := token.SignedString([]byte("secret"))
+			t, err := token.SignedString([]byte(os.Getenv("API_KEY")))
 			if err != nil {
 				return c.SendStatus(fiber.StatusInternalServerError)
 			}
@@ -230,7 +231,7 @@ func main() {
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 		// Generate encoded token and send it as response.
-		t, err := token.SignedString([]byte("secret"))
+		t, err := token.SignedString([]byte(os.Getenv("API_KEY")))
 		if err != nil {
 			return c.SendStatus(fiber.StatusInternalServerError)
 		}
@@ -243,7 +244,7 @@ func main() {
 
 	// JWT Middleware
 	app.Use(jwtware.New(jwtware.Config{
-		SigningKey: []byte("secret"),
+		SigningKey: []byte(os.Getenv("API_KEY")),
 	}))
 
 	// Restricted Routes
