@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"io"
 	"net/http"
 	"runtime"
 	"strconv"
@@ -50,6 +51,28 @@ func sendMetrics(timeElapsed string) {
 		fmt.Println(err)
 	}
 	defer res.Body.Close()
+}
+func autheticate() (r string) {
+	url := "http://10.0.25.41:8003/authenticate"
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		fmt.Println(err)
+	}
+	client := &http.Client{}
+	res, err := client.Do(req)
+	if err != nil {
+		return err.Error()
+	}
+
+	// Close response body as required.
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+
+		}
+	}(res.Body)
+
+	return res.Status
 }
 
 func main() {
@@ -109,6 +132,11 @@ func main() {
 		start := time.Now()
 		// Do api request to another container
 		// url := "http://weatherapi:8001/api/test"
+		code := autheticate()
+		if code != "202" {
+			return fiber.NewError(403, "error with authetnication")
+		}
+
 		req := new(User)
 		if err := c.BodyParser(req); err != nil {
 			return err
