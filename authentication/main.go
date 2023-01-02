@@ -18,12 +18,12 @@ type User struct {
 	Username string `json:"username" gorm:"unique"`
 	Email    string `json:"email" gorm:"unique"`
 	Role     int    `json:"role"`
-	Password string `json:"-"`
+	Password string `json:"password"`
 }
 
 type LoginRequest struct {
 	Username string `json:"name"`
-	Password string `json:"-"`
+	Password string `json:"password"`
 }
 
 type arrayHealthCheck struct {
