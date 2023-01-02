@@ -22,7 +22,7 @@ func main() {
 	origin := "Ptuj"
 	destination := "Ljubljana|Maribor|portorož"
 	url := "https://maps.googleapis.com/maps/api/distancematrix/json?origins=" + origin +
-		"&destinations=" + destination + "&units=metrics&key=" + APIKEY + "&avoidHighways=True"
+		"&destinations=" + destination + "&units=metricsapi&key=" + APIKEY + "&avoidHighways=True"
 
 	method := "GET"
 

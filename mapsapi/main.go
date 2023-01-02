@@ -8,6 +8,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"runtime"
+	"strconv"
 	"time"
 )
 
@@ -73,6 +75,27 @@ func tipiPoti(pot string) string {
 	}
 	return "driving"
 }
+
+func sendMetrics(timeElapsed string) {
+
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+	memoryUsage := strconv.Itoa(int(m.Sys))
+	base_url := "http://104.45.183.75/api/metrics/maps/"
+	apiURL := base_url + timeElapsed[:len(timeElapsed)-2] + "/" + memoryUsage
+	req, err := http.NewRequest("POST", apiURL, nil)
+	if err != nil {
+		fmt.Println(err)
+	}
+	req.Header.Add("Content-Type", "application/json")
+	client := &http.Client{}
+	res, err := client.Do(req)
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer res.Body.Close()
+}
+
 func main() {
 	health := healthCheck{
 		Name:      "Api connection",
@@ -85,16 +108,18 @@ func main() {
 	app.Use(cors.New())
 
 	app.Get("/test", func(c *fiber.Ctx) error {
+
+		start := time.Now()
 		APIKEY := os.Getenv("API_KEY")
 		origin := "Ptuj"
 
 		waypoints := "&waypoints=Celje|Ljubljana" // | je ločilo med waypointi
 		destination := "Maribor"
-		params := "&units=metrics&mode=driving"
-		url := "https://maps.googleapis.com/maps/api/directions/json?origin=" + origin + "&destination=" + destination + waypoints + params + "&key=" + APIKEY
+		params := "&units=metricsapi&mode=driving" // TODO WARNING maybe wrong refactor
+		apiUrl := "https://maps.googleapis.com/maps/api/directions/json?origin=" + origin + "&destination=" + destination + waypoints + params + "&key=" + APIKEY
 		method := "GET"
 		client := &http.Client{}
-		req, err := http.NewRequest(method, url, nil)
+		req, err := http.NewRequest(method, apiUrl, nil)
 		if err != nil {
 			fmt.Println("empty")
 			fmt.Println(err)
@@ -162,6 +187,11 @@ func main() {
 			health.Timestamp = time.Now().Format(time.RFC3339)
 		}
 
+		// send to metricsapi
+		timeElapsed := time.Since(start).String()
+		sendMetrics(timeElapsed)
+
+		// return
 		return c.Send(vrni)
 	})
 	app.Get("/mapsDummy", func(c *fiber.Ctx) error {

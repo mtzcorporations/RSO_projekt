@@ -7,6 +7,8 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"io/ioutil"
 	"net/http"
+	"runtime"
+	"strconv"
 	"time"
 )
 
@@ -74,6 +76,26 @@ func getDataJson() {
 	//return vrni from function
 
 }
+func sendMetrics(timeElapsed string) {
+
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+	memoryUsage := strconv.Itoa(int(m.Sys))
+	base_url := "http://104.45.183.75/api/metrics/gas/"
+	apiURL := base_url + timeElapsed[:len(timeElapsed)-2] + "/" + memoryUsage
+	req, err := http.NewRequest("POST", apiURL, nil)
+	if err != nil {
+		fmt.Println(err)
+	}
+	req.Header.Add("Content-Type", "application/json")
+	client := &http.Client{}
+	res, err := client.Do(req)
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer res.Body.Close()
+}
+
 func main() {
 	health := healthCheck{
 		Name:      "Api connection",
@@ -85,7 +107,8 @@ func main() {
 
 	app.Use(cors.New())
 
-	app.Get("/api/gas", func(c *fiber.Ctx) error {
+	app.Get("/gas", func(c *fiber.Ctx) error {
+		start := time.Now()
 		url := "https://api.collectapi.com/gasPrice/fromCity?city=ljubljana?currency=eur'"
 
 		req, _ := http.NewRequest("GET", url, nil)
@@ -129,6 +152,11 @@ func main() {
 		if err != nil {
 			fmt.Println(err)
 		}
+
+		// send to metricsapi
+		timeElapsed := time.Since(start).String()
+		sendMetrics(timeElapsed)
+
 		return c.Send(vrni)
 	})
 	app.Get("/", func(c *fiber.Ctx) error {

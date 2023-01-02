@@ -46,6 +46,20 @@ spec:
             name: health-service
             port:
               number: 8080
+      - path: /api/gas(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: gasapi-service
+            port:
+              number: 8004
+      - path: /api/metrics(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: metricsapi-service
+            port:
+              number: 8005
       - path: /(.*)
         pathType: Prefix
         backend:

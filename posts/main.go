@@ -1,11 +1,15 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"net/http"
+	"runtime"
+	"strconv"
+	"time"
 )
 
 type User struct {
@@ -19,6 +23,25 @@ type User struct {
 type RatingRequest struct {
 	Id     uint   `json:"id"`
 	Rating string `json:"rating"`
+}
+
+func sendMetrics(timeElapsed string) {
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+	memoryUsage := strconv.Itoa(int(m.Sys))
+	base_url := "http://104.45.183.75/api/metrics/posts/"
+	apiURL := base_url + timeElapsed[:len(timeElapsed)-2] + "/" + memoryUsage
+	req, err := http.NewRequest("POST", apiURL, nil)
+	if err != nil {
+		fmt.Println(err)
+	}
+	req.Header.Add("Content-Type", "application/json")
+	client := &http.Client{}
+	res, err := client.Do(req)
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer res.Body.Close()
 }
 
 func main() {
@@ -48,6 +71,7 @@ func main() {
 	app.Use(cors.New())
 
 	app.Post("/rate/driver", func(c *fiber.Ctx) error {
+		start := time.Now()
 		// Do api request to another container
 		// url := "http://weatherapi:8001/api/test"
 		req := new(User)
@@ -59,6 +83,11 @@ func main() {
 		}
 		//save this info in the database
 		db.Model(&User{}).Where("id = ?", req.Id).Update("rating", req.Rating)
+
+		// send to metricsapi
+		timeElapsed := time.Since(start).String()
+		sendMetrics(timeElapsed)
+
 		return c.SendStatus(fiber.StatusAccepted)
 	})
 
