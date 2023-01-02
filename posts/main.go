@@ -17,9 +17,17 @@ type User struct {
 	Name     string `json:"name"`
 	Username string `json:"username" gorm:"unique"`
 	Email    string `json:"email" gorm:"unique"`
-	Rating   string `json:"rating"`
+	Role     int    `json:"role"`
 	Password string `json:"-"`
 }
+
+type Rating struct {
+	Id      uint   `json:"id"`
+	UserId  uint   `json:"user_id"`
+	Rating  int    `json:"rating"`
+	Comment string `json:"comment"`
+}
+
 type RatingRequest struct {
 	Id     uint   `json:"id"`
 	Rating string `json:"rating"`
@@ -74,16 +82,21 @@ func main() {
 		start := time.Now()
 		// Do api request to another container
 		// url := "http://weatherapi:8001/api/test"
-		req := new(User)
+		req := new(Rating)
 		if err := c.BodyParser(req); err != nil {
 			return err
 		}
-		if req.Rating == "" {
+		if req.Rating == 0 {
 			return fiber.NewError(fiber.StatusBadRequest, "invalid credentials")
 		}
 		//save this info in the database
-		db.Model(&User{}).Where("id = ?", req.Id).Update("rating", req.Rating)
-
+		//db.Model(&Ra{}).Where("id = ?", req.Id).Update("rating", req.Rating)
+		var user Rating
+		user.UserId = req.UserId
+		user.Rating = req.Rating
+		user.Comment = req.Comment
+		//save this info in the database
+		db.Create(&Rating{})
 		// send to metricsapi
 		timeElapsed := time.Since(start).String()
 		sendMetrics(timeElapsed)
