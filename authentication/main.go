@@ -19,7 +19,7 @@ type User struct {
 	Username string `json:"username" gorm:"unique"`
 	Email    string `json:"email" gorm:"unique"`
 	Role     int    `json:"role"`
-	Password string `json:"password"`
+	Password string `json:"-"`
 }
 
 type LoginRequest struct {
@@ -78,7 +78,7 @@ func login(c *fiber.Ctx) error {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	// Generate encoded token and send it as response.
-	t, err := token.SignedString([]byte(os.Getenv("API_KEY")))
+	t, err := token.SignedString([]byte(os.Getenv("JWT_KEY")))
 	if err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
@@ -96,7 +96,7 @@ func authentication() func(c *fiber.Ctx) error {
 		ErrorHandler: func(ctx *fiber.Ctx, err error) error {
 			return fiber.NewError(fiber.StatusUnauthorized)
 		},
-		SigningKey: []byte(os.Getenv("API_KEY")),
+		SigningKey: []byte(os.Getenv("JWT_KEY")),
 	})
 }
 
@@ -192,7 +192,7 @@ func main() {
 			token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 			// Generate encoded token and send it as response.
-			t, err := token.SignedString([]byte(os.Getenv("API_KEY")))
+			t, err := token.SignedString([]byte(os.Getenv("JWT_KEY")))
 			if err != nil {
 				return c.SendStatus(fiber.StatusInternalServerError)
 			}
@@ -231,7 +231,7 @@ func main() {
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 		// Generate encoded token and send it as response.
-		t, err := token.SignedString([]byte(os.Getenv("API_KEY")))
+		t, err := token.SignedString([]byte(os.Getenv("JWT_KEY")))
 		if err != nil {
 			return c.SendStatus(fiber.StatusInternalServerError)
 		}
@@ -244,7 +244,7 @@ func main() {
 
 	// JWT Middleware
 	app.Use(jwtware.New(jwtware.Config{
-		SigningKey: []byte(os.Getenv("API_KEY")),
+		SigningKey: []byte(os.Getenv("JWT_KEY")),
 	}))
 
 	// Restricted Routes

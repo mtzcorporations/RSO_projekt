@@ -56,7 +56,7 @@ func sendMetrics(timeElapsed string) {
 
 func authentication() func(c *fiber.Ctx) error {
 	return jwtware.New(jwtware.Config{
-		SigningKey: []byte(os.Getenv("API_KEY")),
+		SigningKey: []byte(os.Getenv("JWT_KEY")),
 	})
 }
 
