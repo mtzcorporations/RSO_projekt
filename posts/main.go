@@ -74,11 +74,12 @@ func main() {
 	if err != nil {
 		panic("failed to connect database")
 	}
+	db.AutoMigrate(Rating{})
 
 	app := fiber.New()
 	app.Use(cors.New())
 
-	app.Post("/rate/driver", func(c *fiber.Ctx) error {
+	app.Post("/rate", func(c *fiber.Ctx) error {
 		start := time.Now()
 		// Do api request to another container
 		// url := "http://weatherapi:8001/api/test"
@@ -91,17 +92,51 @@ func main() {
 		}
 		//save this info in the database
 		//db.Model(&Ra{}).Where("id = ?", req.Id).Update("rating", req.Rating)
-		var user Rating
-		user.UserId = req.UserId
-		user.Rating = req.Rating
-		user.Comment = req.Comment
+		var rating Rating
+		rating.UserId = req.UserId
+		rating.Rating = req.Rating
+		rating.Comment = req.Comment
 		//save this info in the database
-		db.Create(&Rating{})
+		db.Create(&rating)
 		// send to metricsapi
 		timeElapsed := time.Since(start).String()
 		sendMetrics(timeElapsed)
 
 		return c.SendStatus(fiber.StatusAccepted)
+	})
+
+	app.Get("/rating", func(c *fiber.Ctx) error {
+		start := time.Now()
+		// Do api request to another container
+		// url := "http://weatherapi:8001/api/test"
+		req := new(User)
+		if err := c.BodyParser(req); err != nil {
+			return err
+		}
+		if req.Id == 0 {
+			return fiber.NewError(fiber.StatusBadRequest, "invalid credentials")
+		}
+		//save this info in the database
+		//db.Model(&Ra{}).Where("id = ?", req.Id).Update("rating", req.Rating)
+
+		//save this info in the database
+		var ratings []Rating
+		results := db.Find(&ratings, "user_id = ?", req.Id)
+		if results.Error != nil {
+			return fiber.NewError(500, "error performing a query")
+		}
+		average := 0.0
+		for i := 0; i < len(ratings); i++ {
+			rating := ratings[i]
+			average = average + float64(rating.Rating)
+		}
+		average = average / float64(len(ratings))
+
+		// send to metricsapi
+		timeElapsed := time.Since(start).String()
+		sendMetrics(timeElapsed)
+
+		return c.JSON(fiber.Map{"rating": average})
 	})
 
 	app.Get("/users", func(c *fiber.Ctx) error {
