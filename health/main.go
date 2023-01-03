@@ -216,6 +216,17 @@ func main() {
 	})
 	//started := time.Now()
 	http.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
+		// array of string to hold the urls
+		urls := []string{"http://104.45.183.75/authentication", "http://104.45.183.75/api/maps/health",
+			"http://104.45.183.75/api/weather/health", "http://104.45.183.75/api/gas/health"}
+		names := []string{"Authentication", "MapsApi", "WeatherApi", "GasApi"}
+		//int array of length 4
+		statuses := make([]int, 4)
+		//for loop to iterate from 0 to  len(urls)
+		for i := 0; i < len(urls); i++ {
+			statuses[i] = checkFNC(urls[i], names[i])
+		}
+
 		res := checkFNC("http://104.45.183.75/authentication", "Authentication")
 		w.WriteHeader(res)
 		if res == 200 {
