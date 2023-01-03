@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	jwtware "github.com/gofiber/jwt/v3"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"net/http"
+	"os"
 	"runtime"
 	"strconv"
 	"time"
@@ -52,22 +54,19 @@ func sendMetrics(timeElapsed string) {
 	defer res.Body.Close()
 }
 
+func authentication() func(c *fiber.Ctx) error {
+	return jwtware.New(jwtware.Config{
+		SigningKey: []byte(os.Getenv("JWT_KEY")),
+	})
+}
+
+func authenticate(c *fiber.Ctx) (r bool) {
+	authentication()
+
+	return true
+}
+
 func main() {
-	//TODO use .env variable
-
-	// var dsn string
-	// if true {
-	// 	time.Sleep(5 * time.Second)
-	// 	dsn = "tester:secret@tcp(postsmysql:3306)/test"
-	// } else {
-	// 	dsn = "root@tcp(127.0.0.1:3306)/posts_ms"
-	// }
-	// db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
-	// if err != nil {
-	// 	panic("failed to connect database")
-	// }
-	// db.AutoMigrate(Post{})
-
 	var dsn string
 	dsn = "postgres://zlqwvdmx:x0tl7AVnX4zi0rsqeKcf8R2dhjvqOpib@ella.db.elephantsql.com/zlqwvdmx"
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
@@ -79,7 +78,7 @@ func main() {
 	app := fiber.New()
 	app.Use(cors.New())
 
-	app.Post("/rate", func(c *fiber.Ctx) error {
+	app.Post("/rate", authentication(), func(c *fiber.Ctx) error {
 		start := time.Now()
 		// Do api request to another container
 		// url := "http://weatherapi:8001/api/test"
@@ -105,10 +104,12 @@ func main() {
 		return c.SendStatus(fiber.StatusAccepted)
 	})
 
-	app.Get("/rating", func(c *fiber.Ctx) error {
-		start := time.Now()
+	app.Get("/rating", authentication(), func(c *fiber.Ctx) error {
+		//start := time.Now()
 		// Do api request to another container
 		// url := "http://weatherapi:8001/api/test"
+		authentication()
+
 		req := new(User)
 		if err := c.BodyParser(req); err != nil {
 			return err
@@ -133,8 +134,8 @@ func main() {
 		average = average / float64(len(ratings))
 
 		// send to metricsapi
-		timeElapsed := time.Since(start).String()
-		sendMetrics(timeElapsed)
+		//timeElapsed := time.Since(start).String()
+		//sendMetrics(timeElapsed)
 
 		return c.JSON(fiber.Map{"rating": average})
 	})
