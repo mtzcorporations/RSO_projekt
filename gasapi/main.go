@@ -114,7 +114,7 @@ func main() {
 		req, _ := http.NewRequest("GET", url, nil)
 
 		req.Header.Add("content-type", "application/json")
-		req.Header.Add("authorization", "apikey 2M0y9SHvCFNV5KUD2lGZL2:3VnJ9JIwyF4UCf01Ffbx3S")
+		req.Header.Add("authorization", "apikey 6YJt00ro5xwGZ1rsOKzNbP:5XD3gyFVCpAITEoOzwabhB")
 
 		res, err := http.DefaultClient.Do(req)
 		if err != nil {
