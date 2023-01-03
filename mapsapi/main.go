@@ -65,6 +65,10 @@ type healthCheck struct {
 	Timestamp string `json:"timestamp"`
 }
 
+type Path struct {
+	Path string `json:"path"`
+}
+
 // string function , returning string
 func tipiPoti(pot string) string {
 	// če je pot Peš vrni walking, če je pot z avtomobilom vrni driving, če je pot z vlakom vrni transit, če je kolo vrni bicycling
@@ -132,7 +136,11 @@ func main() {
 
 		start := time.Now()
 
-		locations := c.FormValue("path")
+		path_req := new(Path)
+		if err := c.BodyParser(path_req); err != nil {
+			return err
+		}
+		locations := path_req.Path
 
 		if locations == "" {
 			return nil
