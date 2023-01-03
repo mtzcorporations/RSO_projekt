@@ -128,7 +128,7 @@ func main() {
 
 	app.Use(cors.New())
 
-	app.Get("/test", func(c *fiber.Ctx) error {
+	app.Post("/test", func(c *fiber.Ctx) error {
 
 		start := time.Now()
 
