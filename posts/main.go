@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	jwtware "github.com/gofiber/jwt/v3"
 	"github.com/gofiber/swagger"
+	// _ "github.com/gofiber/swagger/example/docs"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"math"
