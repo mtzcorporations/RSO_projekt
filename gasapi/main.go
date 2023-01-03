@@ -180,6 +180,22 @@ func main() {
 		}
 		return c.SendString(string(healt_json))
 	})
+	app.Get("/healthL", func(c *fiber.Ctx) error {
+		url := "https://api.collectapi.com/gasPrice/fromCity?city=ljubljana?currency=eur'"
+
+		req, _ := http.NewRequest("GET", url, nil)
+
+		req.Header.Add("content-type", "application/json")
+		req.Header.Add("authorization", "apikeyX 6YJt00ro5xwGZ1rsOKzNbP:5XD3gyFVCpAITEoOzwabhB")
+
+		_, err := http.DefaultClient.Do(req)
+
+		if err != nil {
+			return c.SendStatus(500)
+		} else {
+			return c.SendStatus(200)
+		}
+	})
 	app.Listen(":8004")
 
 }

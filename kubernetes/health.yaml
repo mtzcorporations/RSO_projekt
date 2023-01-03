@@ -19,16 +19,6 @@ spec:
           image: rkogolang/repo:health_img
           ports:
             - containerPort: 8080
-          livenessProbe:
-            httpGet:
-              path: /healthz
-              port: 8080
-              httpHeaders:
-                - name: Custom-Header
-                  value: Awesome
-            initialDelaySeconds: 3
-            periodSeconds: 10
-
 
 ---
 apiVersion: v1

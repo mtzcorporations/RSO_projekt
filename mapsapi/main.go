@@ -219,10 +219,5 @@ func main() {
 		return c.SendString(string(healt_json))
 	})
 
-	app.Get("/health2", func(c *fiber.Ctx) error {
-		// return int 200
-		return c.SendStatus(500)
-		//return c.Sendint([]byte("200"))
-	})
 	app.Listen(":8002")
 }

@@ -9,7 +9,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"net/http"
 	"os"
 	"time"
 )
@@ -253,13 +252,20 @@ func main() {
 	app.Get("/authenticate", authentication(), func(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusAccepted)
 	})
-	http.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
+	//http.HandleFunc("/healthR", func(w http.ResponseWriter, r *http.Request) {
+	//	if err != nil {
+	//		w.WriteHeader(200)
+	//		w.Write([]byte("ok ; time: " + time.Now().String()))
+	//	} else {
+	//		w.WriteHeader(500)
+	//		w.Write([]byte("error; time: " + time.Now().String()))
+	//	}
+	//})
+	app.Get("/health2", func(c *fiber.Ctx) error {
 		if err != nil {
-			w.WriteHeader(500)
-			w.Write([]byte("ok ; time: " + time.Now().String()))
+			return c.SendStatus(500)
 		} else {
-			w.WriteHeader(500)
-			w.Write([]byte("error; time: " + time.Now().String()))
+			return c.SendStatus(200)
 		}
 	})
 	app.Listen(":8003")

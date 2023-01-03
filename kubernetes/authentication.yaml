@@ -25,14 +25,14 @@ spec:
                 secretKeyRef:
                   name: map-secret
                   key: jwtkey
-          livenessProbe:
+          readinessProbe:
             httpGet:
-              path: /healthz
+              path: /healthR
               port: 8003
               httpHeaders:
                 - name: Custom-Header
                   value: Awesome
-            initialDelaySeconds: 5
+            initialDelaySeconds: 10
             periodSeconds: 10
 
 ---
