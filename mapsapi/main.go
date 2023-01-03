@@ -158,7 +158,7 @@ func main() {
 		//destination := "Maribor"
 		params := "&units=metricsapi&mode=driving" // TODO WARNING maybe wrong refactor
 		apiUrl := "https://maps.googleapis.com/maps/api/directions/json?origin=" + origin + "&destination=" + destination + waypoints + params + "&key=" + APIKEY
-		method := "GET"
+		method := "POST"
 		client := &http.Client{}
 		req, err := http.NewRequest(method, apiUrl, nil)
 		if err != nil {
