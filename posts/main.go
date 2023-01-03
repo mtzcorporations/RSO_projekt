@@ -7,6 +7,7 @@ import (
 	jwtware "github.com/gofiber/jwt/v3"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"math"
 	"net/http"
 	"os"
 	"runtime"
@@ -15,12 +16,13 @@ import (
 )
 
 type User struct {
-	Id       uint   `json:"id"`
-	Name     string `json:"name"`
-	Username string `json:"username" gorm:"unique"`
-	Email    string `json:"email" gorm:"unique"`
-	Role     int    `json:"role"`
-	Password string `json:"-"`
+	Id       uint    `json:"id"`
+	Name     string  `json:"name"`
+	Username string  `json:"username" gorm:"unique"`
+	Email    string  `json:"email" gorm:"unique"`
+	Role     int     `json:"role"`
+	Password string  `json:"-"`
+	Rating   float64 `json:"rating"`
 }
 
 type Rating struct {
@@ -105,11 +107,9 @@ func main() {
 	})
 
 	app.Get("/rating", authentication(), func(c *fiber.Ctx) error {
-		//start := time.Now()
+		// start := time.Now()
 		// Do api request to another container
 		// url := "http://weatherapi:8001/api/test"
-		authentication()
-
 		req := new(User)
 		if err := c.BodyParser(req); err != nil {
 			return err
@@ -117,10 +117,6 @@ func main() {
 		if req.Id == 0 {
 			return fiber.NewError(fiber.StatusBadRequest, "invalid credentials")
 		}
-		//save this info in the database
-		//db.Model(&Ra{}).Where("id = ?", req.Id).Update("rating", req.Rating)
-
-		//save this info in the database
 		var ratings []Rating
 		results := db.Find(&ratings, "user_id = ?", req.Id)
 		if results.Error != nil {
@@ -143,6 +139,29 @@ func main() {
 	app.Get("/users", func(c *fiber.Ctx) error {
 		result := []User{}
 		db.Find(&result)
+
+		for idx, res := range result {
+
+			var ratings []Rating
+			results := db.Find(&ratings, "user_id = ?", res.Id)
+			if results.Error != nil {
+				return fiber.NewError(500, "error performing a query")
+			}
+			average := 0.0
+			for i := 0; i < len(ratings); i++ {
+				rating := ratings[i]
+				if !math.IsNaN(float64(rating.Rating)) {
+					average = average + float64(rating.Rating)
+				}
+			}
+			if len(ratings) <= 0 {
+				average = 0
+			} else {
+				average = average / float64(len(ratings))
+			}
+
+			result[idx].Rating = average
+		}
 		return c.Status(http.StatusOK).JSON(&result)
 	})
 
