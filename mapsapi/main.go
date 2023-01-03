@@ -153,7 +153,7 @@ func main() {
 		waypoints := "&waypoints=" + locations_between // | je ločilo med waypointi
 		//destination := "Maribor"
 		params := "&units=metricsapi&mode=driving" // TODO WARNING maybe wrong refactor
-		apiUrl := "https://maps.googleapiss.com/maps/api/directions/json?origin=" + origin + "&destination=" + destination + waypoints + params + "&key=" + APIKEY
+		apiUrl := "https://maps.googleapis.com/maps/api/directions/json?origin=" + origin + "&destination=" + destination + waypoints + params + "&key=" + APIKEY
 		method := "GET"
 		client := &http.Client{}
 		req, err := http.NewRequest(method, apiUrl, nil)
