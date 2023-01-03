@@ -169,5 +169,9 @@ func main() {
 		return c.JSON([]byte("Posts container working"))
 	})
 
+	app.Get("/healthL", func(c *fiber.Ctx) error {
+		return c.SendStatus(200)
+	})
+
 	app.Listen(":8000")
 }
