@@ -25,7 +25,7 @@ spec:
                 secretKeyRef:
                   name: map-secret
                   key: jwtkey
-          readinessProbe:
+          livenessProbe:
             httpGet:
               path: /healthz
               port: 8003
