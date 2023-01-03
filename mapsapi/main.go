@@ -131,6 +131,7 @@ func main() {
 		}
 
 		APIKEY := os.Getenv("API_KEY")
+		APIKEY = "AIzaSyArCqTwoFO1uZJsEhzIV0VTp4RKeYoI70o"
 		//origin := "Ptuj"
 		fmt.Println(locations_between)
 		waypoints := "&waypoints=" + locations_between // | je ločilo med waypointi
