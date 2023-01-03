@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/sony/gobreaker"
 	"io/ioutil"
 	"net/http"
 	"runtime"
@@ -104,20 +103,20 @@ func main() {
 		Timestamp: time.Now().Format(time.RFC3339),
 	}
 
-	cb := gobreaker.NewCircuitBreaker(
-		gobreaker.Settings{
-			Name:        "my-circuit-breaker",
-			MaxRequests: 2,
-			Timeout:     2 * time.Second,
-			Interval:    1 * time.Second,
-			ReadyToTrip: func(counts gobreaker.Counts) bool {
-				return counts.ConsecutiveFailures > 2
-			},
-			OnStateChange: func(name string, from gobreaker.State, to gobreaker.State) {
-				fmt.Printf("CircuitBreaker '%s' changed from '%s' to '%s'\n", name, from, to)
-			},
-		},
-	)
+	//cb := gobreaker.NewCircuitBreaker(
+	//	gobreaker.Settings{
+	//		Name:        "my-circuit-breaker",
+	//		MaxRequests: 2,
+	//		Timeout:     2 * time.Second,
+	//		Interval:    1 * time.Second,
+	//		ReadyToTrip: func(counts gobreaker.Counts) bool {
+	//			return counts.ConsecutiveFailures > 2
+	//		},
+	//		OnStateChange: func(name string, from gobreaker.State, to gobreaker.State) {
+	//			fmt.Printf("CircuitBreaker '%s' changed from '%s' to '%s'\n", name, from, to)
+	//		},
+	//	},
+	//)
 
 	//getApiDat_testFunc()
 	app := fiber.New()
@@ -145,10 +144,10 @@ func main() {
 
 		APIKEY := "AIzaSyArCqTwoFO1uZJsEhzIV0VTp4RKeYoI70o"
 		//		APIKEY := os.Getenv("API_KEY")
-		//origin := "Ptuj"
+		origin = "Ptuj"
 		fmt.Println(locations_between)
 		waypoints := "&waypoints=" + locations_between // | je ločilo med waypointi
-		//destination := "Maribor"
+		destination = "Maribor"
 		params := "&units=metricsapi&mode=driving" // TODO WARNING maybe wrong refactor
 		apiUrl := "https://maps.googleapis.com/maps/api/directions/json?origin=" + origin + "&destination=" + destination + waypoints + params + "&key=" + APIKEY
 		method := "GET"
