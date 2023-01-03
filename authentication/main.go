@@ -229,6 +229,7 @@ func main() {
 
 		// Create token
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+		//get token name
 
 		// Generate encoded token and send it as response.
 		t, err := token.SignedString([]byte(os.Getenv("JWT_KEY")))
