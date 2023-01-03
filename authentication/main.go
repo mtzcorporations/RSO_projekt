@@ -19,7 +19,7 @@ type User struct {
 	Username string `json:"username" gorm:"unique"`
 	Email    string `json:"email" gorm:"unique"`
 	Role     int    `json:"role"`
-	Password string `json:"-"`
+	Password string `json:"password"`
 }
 
 type LoginRequest struct {
@@ -229,6 +229,7 @@ func main() {
 
 		// Create token
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+		//get token name
 
 		// Generate encoded token and send it as response.
 		t, err := token.SignedString([]byte(os.Getenv("JWT_KEY")))
@@ -251,6 +252,21 @@ func main() {
 	app.Get("/authenticate", authentication(), func(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusAccepted)
 	})
-
+	//http.HandleFunc("/healthR", func(w http.ResponseWriter, r *http.Request) {
+	//	if err != nil {
+	//		w.WriteHeader(200)
+	//		w.Write([]byte("ok ; time: " + time.Now().String()))
+	//	} else {
+	//		w.WriteHeader(500)
+	//		w.Write([]byte("error; time: " + time.Now().String()))
+	//	}
+	//})
+	app.Get("/health2", func(c *fiber.Ctx) error {
+		if err != nil {
+			return c.SendStatus(500)
+		} else {
+			return c.SendStatus(200)
+		}
+	})
 	app.Listen(":8003")
 }
