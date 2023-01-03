@@ -255,7 +255,7 @@ func main() {
 	})
 	http.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
-			w.WriteHeader(200)
+			w.WriteHeader(500)
 			w.Write([]byte("ok ; time: " + time.Now().String()))
 		} else {
 			w.WriteHeader(500)

@@ -217,7 +217,7 @@ func main() {
 	//started := time.Now()
 	http.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
 		res := checkFNC("http://104.45.183.75/authentication", "Authentication")
-		w.WriteHeader(res)
+		w.WriteHeader(200)
 		if res == 200 {
 			w.Write([]byte("ok ; time: " + time.Now().String()))
 		} else {
