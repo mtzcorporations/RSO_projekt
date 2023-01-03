@@ -28,16 +28,15 @@ spec:
                   value: Awesome
             initialDelaySeconds: 10
             periodSeconds: 10
-
-            readinessProbe:
-              httpGet:
-                path: /healthR
-                port: 8004
-                httpHeaders:
-                  - name: Custom-Header
-                    value: Awesome
-              initialDelaySeconds: 10
-              periodSeconds: 60
+          readinessProbe:
+            httpGet:
+              path: /healthR
+              port: 8004
+              httpHeaders:
+                - name: Custom-Header
+                  value: Awesome
+            initialDelaySeconds: 10
+            periodSeconds: 60
 
 ---
 apiVersion: v1
