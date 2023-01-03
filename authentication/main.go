@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	jwtware "github.com/gofiber/jwt/v3"
@@ -8,6 +9,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"os"
 	"time"
 )
 
@@ -16,12 +18,28 @@ type User struct {
 	Name     string `json:"name"`
 	Username string `json:"username" gorm:"unique"`
 	Email    string `json:"email" gorm:"unique"`
-	Password string `json:"-"`
+	Role     int    `json:"role"`
+	Password string `json:"password"`
 }
 
 type LoginRequest struct {
-	Username string `json:"name"`
-	Password string `json:"-"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+type arrayHealthCheck struct {
+	Id     string         `json:"id"`
+	Health []healthCheck2 `json:"types"`
+}
+type healthCheck2 struct {
+	// Name of the health check
+	Name string `json:"name"`
+	// Status of the health check
+	Status string `json:"status"`
+	// Error message of the health check
+	Error []string `json:"error"`
+	// Timestamp of the health check
+	Timestamp string `json:"timestamp"`
 }
 
 func (user *User) HashPassword(password string) error {
@@ -60,7 +78,7 @@ func login(c *fiber.Ctx) error {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	// Generate encoded token and send it as response.
-	t, err := token.SignedString([]byte("secret"))
+	t, err := token.SignedString([]byte(os.Getenv("JWT_KEY")))
 	if err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
@@ -78,7 +96,7 @@ func authentication() func(c *fiber.Ctx) error {
 		ErrorHandler: func(ctx *fiber.Ctx, err error) error {
 			return fiber.NewError(fiber.StatusUnauthorized)
 		},
-		SigningKey: []byte("secret"),
+		SigningKey: []byte(os.Getenv("JWT_KEY")),
 	})
 }
 
@@ -105,18 +123,47 @@ func register(c *fiber.Ctx) error {
 }
 
 func main() {
+	health := healthCheck2{
+		Name:      "Connection",
+		Status:    "No test",
+		Timestamp: time.Now().Format(time.RFC3339),
+	}
 	//TODO use .env variable
 	var dsn string
 	dsn = "postgres://zlqwvdmx:x0tl7AVnX4zi0rsqeKcf8R2dhjvqOpib@ella.db.elephantsql.com/zlqwvdmx"
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
+		health.Status = "Error"
+		health.Error = append(health.Error, err.Error())
 		panic("failed to connect database")
+
+	} else {
+		health.Status = "Ok"
+		health.Error = append(health.Error, "None")
 	}
 	db.AutoMigrate(User{})
 
 	app := fiber.New()
 	app.Use(cors.New())
+	app.Get("/", func(c *fiber.Ctx) error {
+		healthC := healthCheck2{
+			Name:      "Container",
+			Status:    "OK",
+			Error:     []string{"None"},
+			Timestamp: time.Now().Format(time.RFC3339),
+		}
+		healthAr := arrayHealthCheck{
+			Id:     "Authentication",
+			Health: []healthCheck2{healthC, health},
+		}
 
+		healt_json, err := json.Marshal(healthAr) // back to json
+
+		if err != nil {
+			panic(err)
+		}
+		return c.SendString(string(healt_json))
+	})
 	// Login route
 	app.Post("/login", func(c *fiber.Ctx) error {
 		req := new(LoginRequest)
@@ -145,7 +192,7 @@ func main() {
 			token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 			// Generate encoded token and send it as response.
-			t, err := token.SignedString([]byte("secret"))
+			t, err := token.SignedString([]byte(os.Getenv("JWT_KEY")))
 			if err != nil {
 				return c.SendStatus(fiber.StatusInternalServerError)
 			}
@@ -182,9 +229,10 @@ func main() {
 
 		// Create token
 		token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+		//get token name
 
 		// Generate encoded token and send it as response.
-		t, err := token.SignedString([]byte("secret"))
+		t, err := token.SignedString([]byte(os.Getenv("JWT_KEY")))
 		if err != nil {
 			return c.SendStatus(fiber.StatusInternalServerError)
 		}
@@ -193,17 +241,32 @@ func main() {
 	})
 
 	// Unauthenticated route
-	app.Get("/", accessible)
+	//app.Get("/", accessible)
 
 	// JWT Middleware
 	app.Use(jwtware.New(jwtware.Config{
-		SigningKey: []byte("secret"),
+		SigningKey: []byte(os.Getenv("JWT_KEY")),
 	}))
 
 	// Restricted Routes
 	app.Get("/authenticate", authentication(), func(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusAccepted)
 	})
-
+	//http.HandleFunc("/healthR", func(w http.ResponseWriter, r *http.Request) {
+	//	if err != nil {
+	//		w.WriteHeader(200)
+	//		w.Write([]byte("ok ; time: " + time.Now().String()))
+	//	} else {
+	//		w.WriteHeader(500)
+	//		w.Write([]byte("error; time: " + time.Now().String()))
+	//	}
+	//})
+	app.Get("/health2", func(c *fiber.Ctx) error {
+		if err != nil {
+			return c.SendStatus(500)
+		} else {
+			return c.SendStatus(200)
+		}
+	})
 	app.Listen(":8003")
 }

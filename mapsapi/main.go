@@ -5,11 +5,14 @@ import (
 	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/sony/gobreaker"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
+	"runtime"
 	"strconv"
+	"strings"
+	"time"
 )
 
 type Maps struct {
@@ -26,35 +29,40 @@ type Maps struct {
 				Lng float64 `json:"lng"`
 			} `json:"start_location"`
 			Steps []struct {
-				Distance struct {
-					Text string `json:"text"`
-				} `json:"distance"`
+				EndLocation struct {
+					Lat float64 `json:"lat"`
+					Lng float64 `json:"lng"`
+				} `json:"end_location"`
 			} `json:"steps"`
 		} `json:"legs"`
 	} `json:"routes"`
 	Status string `json:"status"`
 }
 
-type Maps2 struct {
-	Routes []struct {
-		Bounds struct {
-			Northeast struct {
-				Lat json.Number
-				Lng json.Number
-			} `json:"northeast" `
-		} `json:"bounds"`
-	} `json:"routes"`
-	Status string `json:"status"`
+type Mapsout struct {
+	Zacetek    string `json:"zacetek"`
+	Konec      string `json:"cilj"`
+	Trajanje   string `json:"trajanje"`
+	Razdalja   string `json:"razdalja"`
+	Koordinate []struct {
+		Lat float64 `json:"lat"`
+		Lng float64 `json:"lng"`
+	}
 }
 
-func fileReader2() string {
-	content, err := ioutil.ReadFile("KEYS.TXT")
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return string(content)
+type arrayHealthCheck struct {
+	Id     string        `json:"id"`
+	Health []healthCheck `json:"types"`
+}
+type healthCheck struct {
+	// Name of the health check
+	Name string `json:"name"`
+	// Status of the health check
+	Status string `json:"status"`
+	// Error message of the health check
+	Error []string `json:"error"`
+	// Timestamp of the health check
+	Timestamp string `json:"timestamp"`
 }
 
 // string function , returning string
@@ -70,60 +78,190 @@ func tipiPoti(pot string) string {
 	return "driving"
 }
 
+func sendMetrics(timeElapsed string) {
+
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+	memoryUsage := strconv.Itoa(int(m.Sys))
+	base_url := "http://104.45.183.75/api/metrics/maps/"
+	apiURL := base_url + timeElapsed[:len(timeElapsed)-2] + "/" + memoryUsage
+	req, err := http.NewRequest("POST", apiURL, nil)
+	if err != nil {
+		fmt.Println(err)
+	}
+	req.Header.Add("Content-Type", "application/json")
+	client := &http.Client{}
+	res, err := client.Do(req)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer res.Body.Close()
+}
+
 func main() {
+	health := healthCheck{
+		Name:      "Api connection",
+		Status:    "No test",
+		Timestamp: time.Now().Format(time.RFC3339),
+	}
+
+	cb := gobreaker.NewCircuitBreaker(
+		gobreaker.Settings{
+			Name:        "my-circuit-breaker",
+			MaxRequests: 2,
+			Timeout:     2 * time.Second,
+			Interval:    20 * time.Second,
+			ReadyToTrip: func(counts gobreaker.Counts) bool {
+				fmt.Println(counts.ConsecutiveFailures > 2)
+				return counts.ConsecutiveFailures > 2
+			},
+			OnStateChange: func(name string, from gobreaker.State, to gobreaker.State) {
+				fmt.Printf("CircuitBreaker '%s' changed from '%s' to '%s'\n", name, from, to)
+			},
+		},
+	)
+
+	//getApiDat_testFunc()
 	app := fiber.New()
 
 	app.Use(cors.New())
 
-	app.Get("/api/maps", func(c *fiber.Ctx) error {
-		APIKEY := os.Getenv("API_KEY")
-		origin := "Ptuj"
-		destination := "Maribor"
-		params := "&units=metrics&avoidTolls=True&mode=walking"
-		url := "https://maps.googleapis.com/maps/api/directions/json?origin=" + origin + "&destination=" + destination + params + "&key=" + APIKEY
+	app.Get("/test", func(c *fiber.Ctx) error {
 
+		start := time.Now()
+
+		locations := c.FormValue("path")
+
+		locations_Array := strings.Split(locations, "|")
+
+		origin := locations_Array[0]
+		destination := locations_Array[len(locations_Array)-1]
+
+		locations_between := ""
+		for i := 1; i < len(locations_Array)-1; i++ {
+			locations_between = locations_between + locations_Array[i]
+			if len(locations_Array)-2 != i {
+				locations_between = locations_between + "|"
+			}
+		}
+
+		APIKEY := os.Getenv("API_KEY")
+		//origin := "Ptuj"
+		fmt.Println(locations_between)
+		waypoints := "&waypoints=" + locations_between // | je ločilo med waypointi
+		//destination := "Maribor"
+		params := "&units=metricsapi&mode=driving" // TODO WARNING maybe wrong refactor
+		apiUrl := "https://maps.googleapis.com/maps/api/directions/json?origin=" + origin + "&destination=" + destination + waypoints + params + "&key=" + APIKEY
 		method := "GET"
 		client := &http.Client{}
-		req, err := http.NewRequest(method, url, nil)
-
+		req, err := http.NewRequest(method, apiUrl, nil)
 		if err != nil {
+			fmt.Println("empty")
 			fmt.Println(err)
+			health.Status = "ERROR"
+			health.Error = append(health.Error, err.Error())
+			health.Timestamp = time.Now().Format(time.RFC3339)
+			return err
 
+		} else {
+			health.Status = "OK"
+			health.Error = []string{"None"}
+			health.Timestamp = time.Now().Format(time.RFC3339)
 		}
-		res, err := client.Do(req)
+		body, err := cb.Execute(func() (interface{}, error) {
+			res, err := client.Do(req)
+			if err != nil {
+				fmt.Println("http Get request gave error")
+				fmt.Println(err)
+				return nil, err
+			}
+			defer res.Body.Close()
+			body, err := ioutil.ReadAll(res.Body)
+			if err != nil {
+				fmt.Println(err)
+				health.Status = "ERROR"
+				health.Error = append(health.Error, err.Error())
+				health.Timestamp = time.Now().Format(time.RFC3339)
+				return nil, err
+			}
+			return body, nil
+
+		})
+
 		if err != nil {
-			fmt.Println(err)
-
-		}
-		defer res.Body.Close()
-
-		body, err := ioutil.ReadAll(res.Body)
-		if err != nil {
-			fmt.Println(err)
-
+			health.Status = "ERROR"
+			health.Error = append(health.Error, err.Error())
+			health.Timestamp = time.Now().Format(time.RFC3339)
+			return err
 		}
 
 		//desifriranje jsona
 		var mapa Maps
-		if err := json.Unmarshal(body, &mapa); err != nil { // Parse []byte to go struct pointer
+		var output Mapsout
+		if err := json.Unmarshal(body.([]byte), &mapa); err != nil { // Parse []byte to go struct pointer
 			fmt.Println(err)
 			fmt.Println("Can not unmarshal JSON")
+			health.Status = "ERROR"
+			health.Error = append(health.Error, err.Error())
+			health.Timestamp = time.Now().Format(time.RFC3339)
+			return err
 		}
-		fmt.Println(string(body))
-		fmt.Println("\n\n\n")
-		Koordinata_Lat := mapa.Routes[0].Legs[0].StartLocation.Lat
-		Koordinata_Lng := mapa.Routes[0].Legs[0].StartLocation.Lng
-		//print Lat and Lng
-		//fmt.Println(Koordinata_Lat)
-		//fmt.Println(Koordinata_Lng)
-		vrni := "zacetek:" + origin + "Lat " + strconv.FormatFloat(Koordinata_Lng, 'E', -1, 64) + "Lng: " + strconv.FormatFloat(Koordinata_Lat, 'E', -1, 64) + " destinacija:" + destination
-		return c.Send([]byte(vrni))
+		output.Razdalja = mapa.Routes[0].Legs[0].Distance.Text
+		output.Trajanje = mapa.Routes[0].Legs[0].Duration.Text
+		output.Zacetek = origin
+		output.Konec = destination
+		output.Koordinate = append(output.Koordinate, struct {
+			Lat float64 `json:"lat"`
+			Lng float64 `json:"lng"`
+		}{mapa.Routes[0].Legs[0].StartLocation.Lat, mapa.Routes[0].Legs[0].StartLocation.Lng})
+		//fmt.Println(len(mapa.Routes[0].Legs))
+		for j := 0; j < len(mapa.Routes[0].Legs); j++ {
+			for i := 0; i < len(mapa.Routes[0].Legs[j].Steps); i++ {
+				output.Koordinate = append(output.Koordinate, struct {
+					Lat float64 `json:"lat"`
+					Lng float64 `json:"lng"`
+				}{mapa.Routes[0].Legs[j].Steps[i].EndLocation.Lat, mapa.Routes[0].Legs[j].Steps[i].EndLocation.Lng})
+			}
+		}
+		vrni, err := json.Marshal(output)
+		if err != nil {
+			fmt.Println(err)
+			health.Status = "ERROR"
+			health.Error = append(health.Error, err.Error())
+			health.Timestamp = time.Now().Format(time.RFC3339)
+		}
+
+		// send to metricsapi
+		timeElapsed := time.Since(start).String()
+		sendMetrics(timeElapsed)
+
+		// return
+		return c.Send(vrni)
 	})
-	app.Get("/api/mapsDummy", func(c *fiber.Ctx) error {
+	app.Get("/mapsDummy", func(c *fiber.Ctx) error {
 		return c.SendString("koordinata je: " + string("69"))
 	})
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.Send([]byte("Maps api container working"))
+	})
+	app.Get("/health", func(c *fiber.Ctx) error {
+		healthC := healthCheck{
+			Name:      "Container",
+			Status:    "OK",
+			Error:     []string{"None"},
+			Timestamp: time.Now().Format(time.RFC3339),
+		}
+		healthAr := arrayHealthCheck{
+			Id:     "MapsApi",
+			Health: []healthCheck{healthC, health},
+		}
+
+		healt_json, err := json.Marshal(healthAr) // back to json
+		if err != nil {
+			panic(err)
+		}
+		return c.SendString(string(healt_json))
 	})
 
 	app.Listen(":8002")

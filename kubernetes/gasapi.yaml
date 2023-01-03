@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gasapi-deployment
+  labels:
+    app: gasapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gasapi
+  template:
+    metadata:
+      labels:
+        app: gasapi
+    spec:
+      containers:
+        - name: gasapi
+          image: rkogolang/repo:gasapi_img
+          ports:
+            - containerPort: 8004
+      livenessProbe:
+        httpGet:
+          path: /healthL
+          port: 8004
+          httpHeaders:
+            - name: Custom-Header
+              value: Awesome
+        initialDelaySeconds: 5
+        periodSeconds: 60
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gasapi-service
+spec:
+  type: NodePort
+  selector:
+    app: gasapi
+  ports:
+    - protocol: TCP
+      port: 8004
+      targetPort: 8004
+      nodePort: 30104

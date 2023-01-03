@@ -22,6 +22,22 @@ services:
      build: authentication/.
      ports:
        - "8003:8003"
+   gasapi:
+     container_name: gasapi_container
+     build: gasapi/.
+     ports:
+       - "8004:8004"
+   health:
+     container_name: health_container
+     build: health/.
+     ports:
+       - "8080:8080"
+
+   metricsapi:
+     container_name: metrics_container
+     build: metricsapi/.
+     ports:
+       - "8005:8005"
 
 
 volumes:

@@ -19,6 +19,21 @@ spec:
           image: rkogolang/repo:authentication_img
           ports:
             - containerPort: 8003
+          env:
+            - name: JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: map-secret
+                  key: jwtkey
+          readinessProbe:
+            httpGet:
+              path: /healthR
+              port: 8003
+              httpHeaders:
+                - name: Custom-Header
+                  value: Awesome
+            initialDelaySeconds: 10
+            periodSeconds: 10
 
 ---
 apiVersion: v1

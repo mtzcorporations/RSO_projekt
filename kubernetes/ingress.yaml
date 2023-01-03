@@ -1,0 +1,69 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hello-world-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - path: /authentication(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: authentication-service
+            port:
+              number: 8003
+      - path: /api/maps(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: mapsapi-service
+            port:
+              number: 8002
+      - path: /api/weather(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: weatherapi-service
+            port:
+              number: 8001
+      - path: /posts(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: posts-service
+            port:
+              number: 8000
+      - path: /health(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: health-service
+            port:
+              number: 8080
+      - path: /api/gas(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: gasapi-service
+            port:
+              number: 8004
+      - path: /api/metrics(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: metricsapi-service
+            port:
+              number: 8005
+      - path: /(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: posts-service
+            port:
+              number: 8000
