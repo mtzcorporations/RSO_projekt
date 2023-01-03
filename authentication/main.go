@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	jwtware "github.com/gofiber/jwt/v3"
@@ -10,7 +9,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"net/http"
 	"os"
 	"time"
 )
@@ -253,16 +251,6 @@ func main() {
 	app.Get("/authenticate", authentication(), func(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusAccepted)
 	})
-	started := time.Now()
-	http.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
-		duration := time.Now().Sub(started)
-		if duration.Seconds() > 15 {
-			w.WriteHeader(500)
-			w.Write([]byte(fmt.Sprintf("error: %v", duration.Seconds())))
-		} else {
-			w.WriteHeader(200)
-			w.Write([]byte("ok"))
-		}
-	})
+
 	app.Listen(":8003")
 }
