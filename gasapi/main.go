@@ -180,21 +180,31 @@ func main() {
 		}
 		return c.SendString(string(healt_json))
 	})
-	app.Get("/healthL", func(c *fiber.Ctx) error {
-		url := "https://api.collectapi.com/gasPrice/fromCity?city=ljubljana?currency=eur'"
-
-		req, _ := http.NewRequest("GET", url, nil)
-
-		req.Header.Add("content-type", "application/json")
-		req.Header.Add("authorization", "apikeyX 6YJt00ro5xwGZ1rsOKzNbP:5XD3gyFVCpAITEoOzwabhB")
-
-		_, err := http.DefaultClient.Do(req)
-
-		if err != nil {
+	app.Get("/healthR", func(c *fiber.Ctx) error {
+		//url := "https://api.collectapi.com/gasPrice/fromCity?city=ljubljana?currency=eur'"
+		//
+		//req, _ := http.NewRequest("GET", url, nil)
+		//
+		//req.Header.Add("content-type", "application/json")
+		//req.Header.Add("authorization", "apikey 9YJt00ro5xwGZ1rsOKzNbP:5XD3gyFVCpAITEoOzwabhB")
+		//
+		//res, err := http.DefaultClient.Do(req)
+		//defer res.Body.Close()
+		//body, _ := ioutil.ReadAll(res.Body)
+		////check if body  status > 400
+		//niz :=string(body)
+		niz := "OK"
+		//fmt.Println(err)
+		//fmt.Println(string(body))
+		if niz == "Unauthorized" { // || err != nil
+			fmt.Println("error")
 			return c.SendStatus(500)
 		} else {
 			return c.SendStatus(200)
 		}
+	})
+	app.Get("/healthL", func(c *fiber.Ctx) error {
+		return c.SendStatus(200)
 	})
 	app.Listen(":8004")
 

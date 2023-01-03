@@ -19,6 +19,15 @@ spec:
           image: rkogolang/repo:metricsapi_img
           ports:
             - containerPort: 8005
+          livenessProbe:
+            httpGet:
+              path: /healthL
+              port: 8005
+              httpHeaders:
+                - name: Custom-Header
+                  value: Awesome
+            initialDelaySeconds: 10
+            periodSeconds: 10
 
 ---
 apiVersion: v1

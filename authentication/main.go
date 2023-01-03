@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	jwtware "github.com/gofiber/jwt/v3"
@@ -261,12 +262,16 @@ func main() {
 	//		w.Write([]byte("error; time: " + time.Now().String()))
 	//	}
 	//})
-	app.Get("/health2", func(c *fiber.Ctx) error {
+	app.Get("/healthR", func(c *fiber.Ctx) error {
+		fmt.Println(err)
 		if err != nil {
 			return c.SendStatus(500)
 		} else {
 			return c.SendStatus(200)
 		}
+	})
+	app.Get("/healthL", func(c *fiber.Ctx) error {
+		return c.SendStatus(200)
 	})
 	app.Listen(":8003")
 }

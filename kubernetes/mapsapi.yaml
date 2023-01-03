@@ -25,7 +25,15 @@ spec:
               secretKeyRef:
                 name: map-secret
                 key: apikey
-
+          livenessProbe:
+            httpGet:
+              path: /healthL
+              port: 8002
+              httpHeaders:
+                - name: Custom-Header
+                  value: Awesome
+            initialDelaySeconds: 10
+            periodSeconds: 10
 
 ---
 apiVersion: v1

@@ -80,7 +80,9 @@ func main() {
 
 		return c.Send([]byte("Sucess"))
 	})
-
+	app.Get("/healthL", func(c *fiber.Ctx) error {
+		return c.SendStatus(200)
+	})
 	app.Listen(":8005")
 
 }
