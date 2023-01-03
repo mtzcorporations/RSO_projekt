@@ -130,7 +130,7 @@ func main() {
 
 	})
 	started := time.Now()
-	http.HandleFunc("/kubectl logs", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
 		duration := time.Now().Sub(started)
 		if duration.Seconds() > 10 {
 			w.WriteHeader(500)
