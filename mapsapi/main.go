@@ -8,6 +8,7 @@ import (
 	"github.com/sony/gobreaker"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"runtime"
 	"strconv"
 	"strings"
@@ -93,6 +94,7 @@ func sendMetrics(timeElapsed string) {
 	res, err := client.Do(req)
 	if err != nil {
 		fmt.Println(err)
+		return
 	}
 	defer res.Body.Close()
 }
@@ -109,8 +111,9 @@ func main() {
 			Name:        "my-circuit-breaker",
 			MaxRequests: 2,
 			Timeout:     2 * time.Second,
-			Interval:    1 * time.Second,
+			Interval:    20 * time.Second,
 			ReadyToTrip: func(counts gobreaker.Counts) bool {
+				fmt.Println(counts.ConsecutiveFailures > 2)
 				return counts.ConsecutiveFailures > 2
 			},
 			OnStateChange: func(name string, from gobreaker.State, to gobreaker.State) {
@@ -143,8 +146,7 @@ func main() {
 			}
 		}
 
-		APIKEY := "AIzaSyArCqTwoFO1uZJsEhzIV0VTp4RKeYoI70o"
-		//		APIKEY := os.Getenv("API_KEY")
+		APIKEY := os.Getenv("API_KEY")
 		//origin := "Ptuj"
 		fmt.Println(locations_between)
 		waypoints := "&waypoints=" + locations_between // | je ločilo med waypointi
@@ -160,6 +162,7 @@ func main() {
 			health.Status = "ERROR"
 			health.Error = append(health.Error, err.Error())
 			health.Timestamp = time.Now().Format(time.RFC3339)
+			return err
 
 		} else {
 			health.Status = "OK"
@@ -168,26 +171,29 @@ func main() {
 		}
 		body, err := cb.Execute(func() (interface{}, error) {
 			res, err := client.Do(req)
-
+			if err != nil {
+				fmt.Println("http Get request gave error")
+				fmt.Println(err)
+				return nil, err
+			}
 			defer res.Body.Close()
-
 			body, err := ioutil.ReadAll(res.Body)
-
 			if err != nil {
 				fmt.Println(err)
 				health.Status = "ERROR"
 				health.Error = append(health.Error, err.Error())
 				health.Timestamp = time.Now().Format(time.RFC3339)
+				return nil, err
 			}
 			return body, nil
 
 		})
 
 		if err != nil {
-			fmt.Println(err)
 			health.Status = "ERROR"
 			health.Error = append(health.Error, err.Error())
 			health.Timestamp = time.Now().Format(time.RFC3339)
+			return err
 		}
 
 		//desifriranje jsona
@@ -199,9 +205,8 @@ func main() {
 			health.Status = "ERROR"
 			health.Error = append(health.Error, err.Error())
 			health.Timestamp = time.Now().Format(time.RFC3339)
+			return err
 		}
-		fmt.Println("--------------------------")
-		fmt.Println(mapa)
 		output.Razdalja = mapa.Routes[0].Legs[0].Distance.Text
 		output.Trajanje = mapa.Routes[0].Legs[0].Duration.Text
 		output.Zacetek = origin
