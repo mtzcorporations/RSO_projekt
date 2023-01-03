@@ -196,7 +196,7 @@ func main() {
 		niz := "OK"
 		//fmt.Println(err)
 		//fmt.Println(string(body))
-		if niz == "Unauthorized" { // || err != nil
+		if niz == "Unauthorized" { // || err != nil dodaj!!!!!!!!!!
 			fmt.Println("error")
 			return c.SendStatus(500)
 		} else {
