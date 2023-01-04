@@ -14,32 +14,55 @@ import (
 	"time"
 )
 
+// @Summary User object
+// @Description Represents a user in the system
+// @Tags User
 type User struct {
-	Id       uint   `json:"id"`
-	Name     string `json:"name"`
+	// The unique ID of the user
+	Id uint `json:"id"`
+	// The user's name
+	Name string `json:"name"`
+	// The user's username
 	Username string `json:"username" gorm:"unique"`
-	Email    string `json:"email" gorm:"unique"`
-	Role     int    `json:"role"`
+	// The user's email
+	Email string `json:"email" gorm:"unique"`
+	// The user's role
+	Role int `json:"role"`
+	// The user's password (hashed)
 	Password string `json:"password"`
 }
 
+// @Summary Login request object
+// @Description Represents a request to log in to the system
+// @Tags Login
 type LoginRequest struct {
+	// The user's username
 	Username string `json:"username"`
+	// The user's password
 	Password string `json:"password"`
 }
 
+// @Summary Health check object
+// @Description Represents the status of a health check
+// @Tags Health Check
 type arrayHealthCheck struct {
-	Id     string         `json:"id"`
+	// The unique ID of the health check
+	Id string `json:"id"`
+	// The list of health check types
 	Health []healthCheck2 `json:"types"`
 }
+
+// @Summary Health check type object
+// @Description Represents a type of health check
+// @Tags Health Check
 type healthCheck2 struct {
-	// Name of the health check
+	// The name of the health check
 	Name string `json:"name"`
-	// Status of the health check
+	// The status of the health check
 	Status string `json:"status"`
-	// Error message of the health check
+	// The error message of the health check
 	Error []string `json:"error"`
-	// Timestamp of the health check
+	// The timestamp of the health check
 	Timestamp string `json:"timestamp"`
 }
 
@@ -146,6 +169,12 @@ func main() {
 
 	app := fiber.New()
 	app.Use(cors.New())
+
+	// @Summary Returns the health status of the service
+	// @Tags Health
+	// @Produce  json
+	// @Success 200 {object} HealthResponse
+	// @Router / [get]
 	app.Get("/", func(c *fiber.Ctx) error {
 		healthC := healthCheck2{
 			Name:      "Container",
@@ -165,7 +194,17 @@ func main() {
 		}
 		return c.SendString(string(healt_json))
 	})
+
 	// Login route
+	// @Summary Logs in a user
+	// @Tags Login
+	// @Accept  json
+	// @Produce  json
+	// @Param request body object true "LoginRequest"
+	// @Success 200 {object} LoginResponse
+	// @Failure 400 {string} string "Invalid credentials"
+	// @Failure 500 {string} string "Internal server error"
+	// @Router /login [post]
 	app.Post("/login", func(c *fiber.Ctx) error {
 		req := new(LoginRequest)
 		if err := c.BodyParser(req); err != nil {
@@ -202,6 +241,15 @@ func main() {
 		}
 	})
 
+	// @Summary Registers a new user
+	// @Tags Registration
+	// @Accept  json
+	// @Produce  json
+	// @Param request body object true "User"
+	// @Success 200 {object} RegisterResponse
+	// @Failure 400 {string} string "Invalid credentials"
+	// @Failure 500 {string} string "Internal server error"
+	// @Router /register [post]
 	app.Post("/register", func(c *fiber.Ctx) error {
 		req := new(User)
 		if err := c.BodyParser(req); err != nil {
@@ -250,6 +298,12 @@ func main() {
 	}))
 
 	// Restricted Routes
+	// @Summary Verifies the user's token
+	// @Tags Authentication
+	// @Security JWT
+	// @Success 200 {string} string "Accepted"
+	// @Failure 401 {string} string "Unauthorized"
+	// @Router /authenticate [get]
 	app.Get("/authenticate", authentication(), func(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusAccepted)
 	})
@@ -262,6 +316,12 @@ func main() {
 	//		w.Write([]byte("error; time: " + time.Now().String()))
 	//	}
 	//})
+
+	// @Summary Checks the server's status
+	// @Tags Health Check
+	// @Success 200 {string} string "OK"
+	// @Failure 500 {string} string "Internal server error"
+	// @Router /healthR [get]
 	app.Get("/healthR", func(c *fiber.Ctx) error {
 		fmt.Println(err)
 		if err != nil {
@@ -270,6 +330,11 @@ func main() {
 			return c.SendStatus(200)
 		}
 	})
+
+	// @Summary Checks the server's status
+	// @Tags Health Check
+	// @Success 200 {string} string "OK"
+	// @Router /healthL [get]
 	app.Get("/healthL", func(c *fiber.Ctx) error {
 		return c.SendStatus(200)
 	})
