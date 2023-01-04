@@ -117,7 +117,7 @@ func main() {
 		req.Header.Add("authorization", "apikey 6HKRdJ8zLdlBgZsoxLE8N9:04BP4yAklsrPbN8gupNi90")
 
 		res, err := http.DefaultClient.Do(req)
-		fmt.Println("test")
+		//fmt.Println("test")
 
 		if err != nil {
 			//fmt.Println("empty")
@@ -139,7 +139,7 @@ func main() {
 			health.Error = append(health.Error, err.Error())
 
 		}
-		fmt.Println("To je", body)
+		fmt.Println("Response: ", string(body))
 		var data jsn
 		var retrn jsnret
 		if err := json.Unmarshal(body, &data); err != nil { // Parse []byte to go struct pointer
